@@ -5,7 +5,7 @@
 #include "esp_vfs_fat.h"
 #include "esp_log.h"
 
-static const char* TAG = "LOG:";
+static const char* TAG = "SDMMC:";
 
 void CSdmmc::Init()
 {

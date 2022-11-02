@@ -8,6 +8,7 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 
+#include "tasks.h"
 #include "DataLogStateMachine.h"
 
 static const char* TAG = "tFast";
@@ -19,6 +20,8 @@ void tFast(void* pvParameters)
     TickType_t xLastWakeTime = xTaskGetTickCount();
     const TickType_t xFrequency = 1000 / portTICK_PERIOD_MS; // 1000ms 
 
+    flagrestart-=restart_fast;
+    while (flagrestart != 0) {}
     for( ;; )
     {
         // Wait for the next cycle.

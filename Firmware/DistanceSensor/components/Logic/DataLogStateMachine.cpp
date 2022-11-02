@@ -4,17 +4,20 @@
 #include "sdmmc_cmd.h"
 #include "esp_vfs_fat.h"
 
+#include "LS7366R.h"
 //#include "Measurement/Acceleration/MPU6050Accelerometer.h"
 #include "Sdmmc.h"
 
 CDataLogStateMachine* CDataLogStateMachine::mspDataLogStateMachine = NULL;
-static const char* TAG = "LOG:";
+static const char* TAG = "LOG";
 
 CDataLogStateMachine::CDataLogStateMachine(void)
     : mLogState(LogStateInactive)
 {
     mQueueHdl = xQueueCreate(100, sizeof(SLogData));
     mpFileStorage = new CSdmmc();
+    const unsigned int inc2Mm = 100;
+    mpPositionMeasurement = new CLs7366r(inc2Mm);
     //mpAccelerometer = NULL; //new CMpu6050Accelerometer();
 }
 
@@ -35,6 +38,9 @@ CDataLogStateMachine::~CDataLogStateMachine()
     delete mpFileStorage;
     mpFileStorage = NULL;
 
+    delete mpPositionMeasurement;
+    mpPositionMeasurement = NULL;
+
     //delete mpAccelerometer;
     //mpAccelerometer = NULL;
 }
@@ -42,6 +48,7 @@ CDataLogStateMachine::~CDataLogStateMachine()
 void CDataLogStateMachine::Init()
 {
     if (mpFileStorage)          mpFileStorage->Init();
+    if (mpPositionMeasurement)  mpPositionMeasurement->Init();
     //if (mpAccelerometer)        mpAccelerometer->Init();
 }
 
@@ -114,7 +121,7 @@ void CDataLogStateMachine::Send()
     case LogStateLogging:
         {
             logData.index++;
-
+            if (mpPositionMeasurement)  logData.pos                = mpPositionMeasurement->GetPositionMm();
             //if (mpAccelerometer)        logData.acceleration_data  = mpAccelerometer->GetAcceleration();
 
             if(mMarker.load())

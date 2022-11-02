@@ -7,6 +7,7 @@
 #include "freertos/queue.h"
 
 #include "LogData.h"
+#include "IPositionMeasurement.h"
 //#include "Measurement/Acceleration/IAccelerometer.h"
 #include "IFileStorage.h"
 
@@ -43,6 +44,7 @@ private:
 
     QueueHandle_t           mQueueHdl;
     IFileStorage*           mpFileStorage;
+    IPositionMeasurement*   mpPositionMeasurement;
     //IAccelerometer*         mpAccelerometer;
     std::atomic<ELogState>  mLogState;
     std::atomic_bool        mMarker;
