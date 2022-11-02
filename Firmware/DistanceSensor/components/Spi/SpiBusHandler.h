@@ -11,7 +11,7 @@ public:
     void AddDevice(spi_device_interface_config_t spiDeviceCfg, spi_device_handle_t& rSpiDeviceHandle);
 
 private:
-    CSpiBusHandler(void) {}
+    CSpiBusHandler(void);
     CSpiBusHandler(CSpiBusHandler const&);  // Don't implement
     void operator=(CSpiBusHandler const&);  // Don't implement
 };

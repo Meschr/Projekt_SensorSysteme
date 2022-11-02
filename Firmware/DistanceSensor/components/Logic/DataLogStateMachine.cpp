@@ -1,6 +1,7 @@
 #include "DataLogStateMachine.h"
 #include <sys/stat.h>
 #include "driver/sdmmc_host.h"
+#include "esp_log.h"
 #include "sdmmc_cmd.h"
 #include "esp_vfs_fat.h"
 
@@ -122,6 +123,7 @@ void CDataLogStateMachine::Send()
         {
             logData.index++;
             if (mpPositionMeasurement)  logData.pos                = mpPositionMeasurement->GetPositionMm();
+            ESP_LOGI(TAG, "%f", logData.pos);
             //if (mpAccelerometer)        logData.acceleration_data  = mpAccelerometer->GetAcceleration();
 
             if(mMarker.load())

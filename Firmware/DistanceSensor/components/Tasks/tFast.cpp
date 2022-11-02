@@ -18,7 +18,7 @@ void tFast(void* pvParameters)
     ESP_LOGI(TAG, "Task started");
     // Initialise the xLastWakeTime variable with the current time.
     TickType_t xLastWakeTime = xTaskGetTickCount();
-    const TickType_t xFrequency = 1000 / portTICK_PERIOD_MS; // 1000ms 
+    const TickType_t xFrequency = 100 / portTICK_PERIOD_MS; // 100ms 
 
     flagrestart-=restart_fast;
     while (flagrestart != 0) {}

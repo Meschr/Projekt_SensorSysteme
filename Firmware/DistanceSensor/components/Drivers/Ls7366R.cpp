@@ -3,6 +3,7 @@
 #include <string.h>
 #include "esp_system.h"
 #include "esp_err.h"
+#include "esp_log.h"
 #include "driver/gpio.h"
 
 #include "SpiBusHandler.h"
@@ -11,6 +12,8 @@
 #define PIN_NUM_MOSI 23
 #define PIN_NUM_CLK 18
 #define PIN_NUM_CS 5
+
+static const char* TAG = "Ls7366R";
 
 /*MDR0 configuration data - the configuration byte is formed with
  single segments taken from each group and ORing all together.*/
@@ -86,6 +89,7 @@ void CLs7366r::Init()
         .queue_size = 7
     };
     CSpiBusHandler::GetInstance()->AddDevice(spi_device_cfg, mSpiDeviceHdl);
+    ESP_LOGI(TAG, "Added to spi bus");
 
     //setting up LS7366R registers
     esp_err_t err;
