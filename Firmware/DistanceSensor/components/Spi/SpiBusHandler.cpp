@@ -39,7 +39,6 @@ CSpiBusHandler::~CSpiBusHandler(void)
 
 void CSpiBusHandler::AddDevice(spi_device_interface_config_t spiDeviceCfg, spi_device_handle_t& rSpiDeviceHandle)
 {
-    esp_err_t err;
-    err = spi_bus_add_device(VSPI_HOST, &spiDeviceCfg, &rSpiDeviceHandle);
+    esp_err_t err = spi_bus_add_device(VSPI_HOST, &spiDeviceCfg, &rSpiDeviceHandle);
     ESP_ERROR_CHECK(err);
 }

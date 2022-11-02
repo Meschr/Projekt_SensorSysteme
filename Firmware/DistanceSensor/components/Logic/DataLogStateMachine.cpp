@@ -123,7 +123,6 @@ void CDataLogStateMachine::Send()
         {
             logData.index++;
             if (mpPositionMeasurement)  logData.pos                = mpPositionMeasurement->GetPositionMm();
-            ESP_LOGI(TAG, "%f", logData.pos);
             //if (mpAccelerometer)        logData.acceleration_data  = mpAccelerometer->GetAcceleration();
 
             if(mMarker.load())

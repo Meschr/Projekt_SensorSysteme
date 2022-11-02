@@ -20,7 +20,7 @@ void tLog(void* pvParameters)
 
     // Initialise the xLastWakeTime variable with the current time.
     TickType_t xLastWakeTime = xTaskGetTickCount();
-    const TickType_t xFrequency = 500/portTICK_PERIOD_MS; // 500ms
+    const TickType_t xFrequency = 50/portTICK_PERIOD_MS; // 50ms
 
     flagrestart-=restart_log;
     while (flagrestart != 0) {}
