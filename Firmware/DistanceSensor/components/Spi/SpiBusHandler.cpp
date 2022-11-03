@@ -25,7 +25,9 @@ CSpiBusHandler::CSpiBusHandler(void)
         .sclk_io_num = PIN_NUM_CLK,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
-        .max_transfer_sz = 0 // maximum transfer size in bytes (Default is 4094 if 0)
+        .max_transfer_sz = 0, // maximum transfer size in bytes (Default is 4094 if 0)
+        .flags = 0,
+        .intr_flags = 0
     };
     err = spi_bus_initialize(VSPI_HOST, &spi_bus_cfg,0);
     ESP_ERROR_CHECK(err);
