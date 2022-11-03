@@ -15,7 +15,7 @@
 #include <esp_err.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-#include "esp32_i2c_rw/esp32_i2c_rw.h"
+#include "esp32_i2c_rw.h"
 
 #define I2C_NUM (I2C_NUM_0)
 
