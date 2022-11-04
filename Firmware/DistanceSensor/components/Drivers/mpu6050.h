@@ -37,13 +37,10 @@ typedef struct _mpu6050_rotation_t
     int16_t gyro_z;
 } mpu6050_rotation_t;
 
-uint8_t mpu6050_device_address;
-uint8_t buffer[14];
-
 /**
  * @brief MPU6050 constructor.
  */
-void mpu6050_init();
+ void mpu6050_init();
 
 /**
  * @brief Verify the I2C connection. Make sure the device is connected and

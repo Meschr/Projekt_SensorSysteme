@@ -19,6 +19,25 @@
 
 #define I2C_NUM (I2C_NUM_0)
 
+const char *TAG = "I2C";
+
+void init_i2c_driver()
+{
+	i2c_config_t conf;
+	conf.mode = I2C_MODE_MASTER;
+	conf.sda_io_num = GPIO_NUM_21; // select GPIO specific to your project
+	conf.scl_io_num = GPIO_NUM_22;// select GPIO specific to your project
+	conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
+	conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
+	conf.master.clk_speed = 100000; // select frequency specific to your project
+	conf.clk_flags = 0;
+	esp_err_t err = i2c_param_config(I2C_NUM, &conf);
+	ESP_ERROR_CHECK(err);
+
+	err = i2c_driver_install(I2C_NUM, I2C_MODE_MASTER, 0,0,0);
+	ESP_ERROR_CHECK(err);
+}
+
 void select_register(uint8_t device_address, uint8_t register_address)
 {
 	i2c_cmd_handle_t cmd = i2c_cmd_link_create();
@@ -44,9 +63,9 @@ int8_t esp32_i2c_read_bytes
 	i2c_master_write_byte(cmd, (device_address << 1) | I2C_MASTER_READ, 1);
 
 	if (size > 1)
-		i2c_master_read(cmd, data, size - 1, 0);
+		i2c_master_read(cmd, data, size - 1, I2C_MASTER_ACK);
 
-	i2c_master_read_byte(cmd, data + size - 1, 1);
+	i2c_master_read_byte(cmd, data + size - 1, I2C_MASTER_NACK);
 
 	i2c_master_stop(cmd);
 	i2c_master_cmd_begin(I2C_NUM, cmd, 1000 / portTICK_PERIOD_MS);

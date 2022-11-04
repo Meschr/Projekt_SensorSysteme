@@ -6,6 +6,7 @@
 #include "esp_vfs_fat.h"
 
 #include "LS7366R.h"
+#include "mpu6050.h"
 //#include "Measurement/Acceleration/MPU6050Accelerometer.h"
 #include "Sdmmc.h"
 
@@ -16,9 +17,13 @@ CDataLogStateMachine::CDataLogStateMachine(void)
     : mLogState(LogStateInactive)
 {
     mQueueHdl = xQueueCreate(100, sizeof(SLogData));
-    mpFileStorage = new CSdmmc();
+    //mpFileStorage = new CSdmmc();
     const unsigned int inc2Mm = 100;
     mpPositionMeasurement = new CLs7366r(inc2Mm);
+
+    mpu6050_init();
+    auto init_success = mpu6050_test_connection() ? "mpu6050 initialized successfully!" : "mpu6050 test connection failed!";
+    ESP_LOGI(TAG, "%s",init_success);
     //mpAccelerometer = NULL; //new CMpu6050Accelerometer();
 }
 
@@ -48,7 +53,7 @@ CDataLogStateMachine::~CDataLogStateMachine()
 
 void CDataLogStateMachine::Init()
 {
-    if (mpFileStorage)          mpFileStorage->Init();
+    //if (mpFileStorage)          mpFileStorage->Init();
     if (mpPositionMeasurement)  mpPositionMeasurement->Init();
     //if (mpAccelerometer)        mpAccelerometer->Init();
 }
@@ -124,6 +129,12 @@ void CDataLogStateMachine::Send()
             logData.index++;
             if (mpPositionMeasurement)  logData.pos                = mpPositionMeasurement->GetPositionMm();
             //if (mpAccelerometer)        logData.acceleration_data  = mpAccelerometer->GetAcceleration();
+
+            mpu6050_acceleration_t* data = {0};
+            mpu6050_get_acceleration(data);
+            ESP_LOGI(TAG, "Accel_x: %d", data->accel_x);
+            ESP_LOGI(TAG, "Accel_y: %d", data->accel_y);  
+            ESP_LOGI(TAG, "Accel_z: %d", data->accel_z);
 
             if(mMarker.load())
             {

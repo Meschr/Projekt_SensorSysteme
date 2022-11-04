@@ -20,7 +20,7 @@ void tLog(void* pvParameters)
 
     // Initialise the xLastWakeTime variable with the current time.
     TickType_t xLastWakeTime = xTaskGetTickCount();
-    const TickType_t xFrequency = 50/portTICK_PERIOD_MS; // 50ms
+    const TickType_t xFrequency = 5000/portTICK_PERIOD_MS; // 50ms
 
     flagrestart-=restart_log;
     while (flagrestart != 0) {}
@@ -39,6 +39,6 @@ void tLog(void* pvParameters)
             EnableDisableLoggingLED(0);
         }
 
-        CDataLogStateMachine::GetInstance()->Receive();
+        //CDataLogStateMachine::GetInstance()->Receive();
     }
 }

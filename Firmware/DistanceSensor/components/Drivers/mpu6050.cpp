@@ -27,8 +27,13 @@ float delta_t = 0.0f;
 float pitch, yaw, roll;
 int last_update = 0, first_update = 0, now = 0;
 
+uint8_t mpu6050_device_address;
+uint8_t buffer[14];
+
 void mpu6050_init()
 {
+    init_i2c_driver();
+
     mpu6050_device_address = MPU6050_DEVICE;
     mpu6050_set_clock_source(MPU6050_CLOCK_PLL_XGYRO);
     mpu6050_set_full_scale_gyro_range(MPU6050_GYRO_FULL_SCALE_RANGE_250);

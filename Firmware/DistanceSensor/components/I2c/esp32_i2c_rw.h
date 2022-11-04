@@ -16,6 +16,8 @@
 
 #include <driver/i2c.h>
 
+void init_i2c_driver();
+
 /**
  * @brief Select the register in the device where data will be read from.
  *
