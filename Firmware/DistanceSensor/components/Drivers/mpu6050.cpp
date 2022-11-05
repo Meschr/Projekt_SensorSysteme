@@ -14,7 +14,7 @@ int last_update = 0, first_update = 0, now = 0;
 
 uint8_t buffer[14];
 
-void CMpu6050::CMpu6050(EMpu6050_Address address)
+CMpu6050::CMpu6050(EMpu6050_Address address)
 {
     deviceAddress = address;
 }
@@ -1739,8 +1739,9 @@ bool CMpu6050::GetIntDataReadyStatus()
     return (buffer[0]);
 }
 
-void CMpu6050::GetAcceleration(mpu6050_acceleration_t* data)
-{
+SAccelerationData CMpu6050::GetAcceleration()
+{   
+    SAccelerationData data = {0};
     esp32_i2c_read_bytes
     (
         deviceAddress,
@@ -1748,9 +1749,11 @@ void CMpu6050::GetAcceleration(mpu6050_acceleration_t* data)
         6,
         buffer
     );
-    data->accel_x = (((int16_t) buffer[0]) << 8) | buffer[1];
-    data->accel_y = (((int16_t) buffer[2]) << 8) | buffer[3];
-    data->accel_z = (((int16_t) buffer[4]) << 8) | buffer[5];
+    data.acceleration_x = (((int16_t) buffer[0]) << 8) | buffer[1];
+    data.acceleration_y = (((int16_t) buffer[2]) << 8) | buffer[3];
+    data.acceleration_z = (((int16_t) buffer[4]) << 8) | buffer[5];
+
+    return data;
 }
 
 int16_t CMpu6050::GetAccelerationX()
@@ -1805,8 +1808,10 @@ int16_t CMpu6050::GetTemperature()
     return ((((int16_t) buffer[0]) << 8) | buffer[1]);
 }
 
-void CMpu6050::GetRotation(mpu6050_rotation_t* data)
+SRotationData CMpu6050::GetRotation()
 {
+    SRotationData data = {0};
+
     esp32_i2c_read_bytes
     (
         deviceAddress,
@@ -1814,9 +1819,11 @@ void CMpu6050::GetRotation(mpu6050_rotation_t* data)
         6,
         buffer
     );
-    data->gyro_x = (((int16_t) buffer[0]) << 8) | buffer[1];
-    data->gyro_y = (((int16_t) buffer[2]) << 8) | buffer[3];
-    data->gyro_z = (((int16_t) buffer[4]) << 8) | buffer[5];
+    data.rotation_x = (((int16_t) buffer[0]) << 8) | buffer[1];
+    data.rotation_y = (((int16_t) buffer[2]) << 8) | buffer[3];
+    data.rotation_z = (((int16_t) buffer[4]) << 8) | buffer[5];
+
+    return data;
 }
 
 int16_t CMpu6050::GetRotationX()
@@ -3392,7 +3399,7 @@ void CMpu6050::Calibrate(float *accel_bias_res, float *gyro_bias_res)
     accel_bias_res[2] = (float) accel_bias[2] / (float) accel_sensitivity;
 }
 
-void SelfTest(float *destination)
+void CMpu6050::SelfTest(float *destination)
 {
     uint8_t self_test[6];
     float factory_trim[6];

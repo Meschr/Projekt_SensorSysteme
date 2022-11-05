@@ -21,10 +21,6 @@ CDataLogStateMachine::CDataLogStateMachine(void)
     const unsigned int inc2Mm = 100;
     mpPositionMeasurement = new CLs7366r(inc2Mm);
     mpAccelerometer = new CMpu6050(MPU6050_ADDRESS_LOW);
-
-    //mpu6050_init();
-    //auto init_success = mpu6050_test_connection() ? "mpu6050 initialized successfully!" : "mpu6050 test connection failed!";
-    //ESP_LOGI(TAG, "%s",init_success);
 }
 
 void CDataLogStateMachine::CreateInstance(void)
@@ -56,6 +52,8 @@ void CDataLogStateMachine::Init()
     if (mpFileStorage)          mpFileStorage->Init();
     if (mpPositionMeasurement)  mpPositionMeasurement->Init();
     if (mpAccelerometer)        mpAccelerometer->Init();
+    auto init_success = mpAccelerometer->TestConnection() ? "mpu6050 initialized successfully!" : "mpu6050 test connection failed!";
+    ESP_LOGI(TAG, "%s",init_success);
 }
 
 void CDataLogStateMachine::Receive()

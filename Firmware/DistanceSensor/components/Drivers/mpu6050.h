@@ -6,23 +6,20 @@
 #include "mpu6050_registers.h"
 #include "IAccelerometer.h"
 
-#define MPU6050_DEVICE          MPU6050_ADDRESS_LOW
+// Address of MPU6050 (Can be 0x68 or 0x69):
+enum EMpu6050_Address
+{
+    MPU6050_ADDRESS_LOW = 0x68, // Address pin low (GND).
+    MPU6050_ADDRESS_HIGH = 0x69 // Address pin high (VCC).
+};  
 
 class CMpu6050 : public IAccelerometer
 {
 private:
     uint8_t deviceAddress;
     const char *TAG_MPU6050 = "MPU6050";
-    
+
 public:
-
-    // Address of MPU6050 (Can be 0x68 or 0x69):
-    enum EMpu6050_Address
-    {
-        MPU6050_ADDRESS_LOW = 0x68, // Address pin low (GND).
-        MPU6050_ADDRESS_HIGH = 0x69 // Address pin high (VCC).
-    };  
-
     CMpu6050(EMpu6050_Address address);
     ~CMpu6050(void) {}
 
@@ -1450,7 +1447,7 @@ public:
      *
      * @param data pointer to acceleration struct.
      */
-    void GetAcceleration(mpu6050_acceleration_t* data);
+    SAccelerationData GetAcceleration();
 
     /**
      * @brief Get X-axis accelerometer reading.
@@ -1506,7 +1503,7 @@ public:
      *
      * @param data pointer to rotation struct.
      */
-    void GetRotation(mpu6050_rotation_t* data);
+    SRotationData GetRotation();
 
     /**
      * @brief Get X-axis gyroscope reading.
