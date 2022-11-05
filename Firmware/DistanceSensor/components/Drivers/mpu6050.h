@@ -1473,9 +1473,9 @@ public:
     /**
      * @brief Get current internal temperature.
      *
-     * @return Temperature reading in 16-bit 2's complement format.
+     * @return Temperature reading is in 16bit 2s complement format and gets converted to Celsius.
      */
-    int16_t GetTemperature();
+    float GetTemperature();
 
     /**
      * @brief Get 3-axis gyroscope readings.

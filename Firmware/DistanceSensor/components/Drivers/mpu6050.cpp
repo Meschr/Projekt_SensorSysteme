@@ -1795,7 +1795,7 @@ int16_t CMpu6050::GetAccelerationZ()
     return ((((int16_t) buffer[0]) << 8) | buffer[1]);
 }
 
-int16_t CMpu6050::GetTemperature()
+float CMpu6050::GetTemperature()
 {
     esp32_i2c_read_bytes
     (
@@ -1804,8 +1804,8 @@ int16_t CMpu6050::GetTemperature()
         2,
         buffer
     );
-
-    return ((((int16_t) buffer[0]) << 8) | buffer[1]);
+    int16_t sensorReading = ((((int16_t) buffer[0]) << 8) | buffer[1]);
+    return (sensorReading/340)+36.53; //datasheet
 }
 
 SRotationData CMpu6050::GetRotation()

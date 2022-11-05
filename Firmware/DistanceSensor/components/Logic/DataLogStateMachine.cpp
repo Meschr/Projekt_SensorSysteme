@@ -54,8 +54,8 @@ void CDataLogStateMachine::Init()
     if(mCMpu6050)               mCMpu6050->Init();
     auto init_success = mCMpu6050->TestConnection() ? "mpu6050 initialized successfully!" : "mpu6050 test connection failed!";
     ESP_LOGI(TAG, "%s",init_success);
-    int16_t temp = mCMpu6050->GetTemperature();
-    ESP_LOGI(TAG, "Temperature: %d",temp);
+    auto temp = mCMpu6050->GetTemperature();
+    ESP_LOGI(TAG, "Temperature: %f °C",temp);
 }
 
 void CDataLogStateMachine::Receive()
