@@ -6,8 +6,7 @@
 #include "esp_vfs_fat.h"
 
 #include "LS7366R.h"
-#include "mpu6050.h"
-//#include "Measurement/Acceleration/MPU6050Accelerometer.h"
+#include "Mpu6050.h"
 #include "Sdmmc.h"
 
 CDataLogStateMachine* CDataLogStateMachine::mspDataLogStateMachine = NULL;
@@ -20,7 +19,7 @@ CDataLogStateMachine::CDataLogStateMachine(void)
     mpFileStorage = new CSdmmc();
     const unsigned int inc2Mm = 100;
     mpPositionMeasurement = new CLs7366r(inc2Mm);
-    mpAccelerometer = new CMpu6050(MPU6050_ADDRESS_LOW);
+    mCMpu6050 = new CMpu6050(MPU6050_ADDRESS_LOW);
 }
 
 void CDataLogStateMachine::CreateInstance(void)
@@ -43,17 +42,20 @@ CDataLogStateMachine::~CDataLogStateMachine()
     delete mpPositionMeasurement;
     mpPositionMeasurement = NULL;
 
-    delete mpAccelerometer;
-    mpAccelerometer = NULL;
+    //delete mpAccelerometer;
+    //mpAccelerometer = NULL;
 }
 
 void CDataLogStateMachine::Init()
 {
     if (mpFileStorage)          mpFileStorage->Init();
     if (mpPositionMeasurement)  mpPositionMeasurement->Init();
-    if (mpAccelerometer)        mpAccelerometer->Init();
-    auto init_success = mpAccelerometer->TestConnection() ? "mpu6050 initialized successfully!" : "mpu6050 test connection failed!";
+    //if (mpAccelerometer)        mpAccelerometer->Init();
+    if(mCMpu6050)               mCMpu6050->Init();
+    auto init_success = mCMpu6050->TestConnection() ? "mpu6050 initialized successfully!" : "mpu6050 test connection failed!";
     ESP_LOGI(TAG, "%s",init_success);
+    int16_t temp = mCMpu6050->GetTemperature();
+    ESP_LOGI(TAG, "Temperature: %d",temp);
 }
 
 void CDataLogStateMachine::Receive()

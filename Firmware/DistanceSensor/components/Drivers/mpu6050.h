@@ -3,7 +3,7 @@
 
 #include <math.h>
 #include "esp32_i2c_rw.h"
-#include "mpu6050_registers.h"
+#include "Mpu6050Registers.h"
 #include "IAccelerometer.h"
 
 // Address of MPU6050 (Can be 0x68 or 0x69):

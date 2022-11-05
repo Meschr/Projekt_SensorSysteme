@@ -9,7 +9,8 @@
 #include "LogData.h"
 #include "IFileStorage.h"
 #include "IPositionMeasurement.h"
-#include "IAccelerometer.h"
+//#include "IAccelerometer.h"
+#include "Mpu6050.h"
 
 class CDataLogStateMachine
 {
@@ -45,7 +46,8 @@ private:
     QueueHandle_t           mQueueHdl;
     IFileStorage*           mpFileStorage;
     IPositionMeasurement*   mpPositionMeasurement;
-    IAccelerometer*         mpAccelerometer;
+    //IAccelerometer*         mpAccelerometer;
+    CMpu6050*               mCMpu6050;
     std::atomic<ELogState>  mLogState;
     std::atomic_bool        mMarker;
 };

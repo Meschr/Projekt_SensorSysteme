@@ -1,4 +1,4 @@
-set(SOURCEFILES "Ls7366R.cpp" "mpu6050.cpp")
+set(SOURCEFILES "Ls7366R.cpp" "Mpu6050.cpp")
 
 idf_component_register(SRCS ${SOURCEFILES}
                         INCLUDE_DIRS "."

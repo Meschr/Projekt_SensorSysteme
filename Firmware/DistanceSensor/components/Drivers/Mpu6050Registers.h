@@ -1,16 +1,3 @@
-/**
- * @file mpu6050_registers.h
- * 
- * @author
- * Gabriel Boni Vicari (133192@upf.br)
- * GEPID - Grupo de Pesquisa em Cultura Digital (http://gepid.upf.br/)
- * Universidade de Passo Fundo (http://www.upf.br/)
- *
- * @copyright 2018 Jeff Rowberg
- *
- * @brief This is the "private" headers file for the MPU6050 ESP32 library.
- */
-
 #ifndef MPU6050_REGISTERS_H
 #define MPU6050_REGISTERS_H
 

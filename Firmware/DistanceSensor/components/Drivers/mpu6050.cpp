@@ -1,4 +1,4 @@
-#include "mpu6050.h"
+#include "Mpu6050.h"
 #include <string.h>
 
 #define PI              (3.14159265358979323846f)
