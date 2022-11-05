@@ -7,9 +7,9 @@
 #include "freertos/queue.h"
 
 #include "LogData.h"
-#include "IPositionMeasurement.h"
-//#include "Measurement/Acceleration/IAccelerometer.h"
 #include "IFileStorage.h"
+#include "IPositionMeasurement.h"
+#include "IAccelerometer.h"
 
 class CDataLogStateMachine
 {
@@ -45,7 +45,7 @@ private:
     QueueHandle_t           mQueueHdl;
     IFileStorage*           mpFileStorage;
     IPositionMeasurement*   mpPositionMeasurement;
-    //IAccelerometer*         mpAccelerometer;
+    IAccelerometer*         mpAccelerometer;
     std::atomic<ELogState>  mLogState;
     std::atomic_bool        mMarker;
 };

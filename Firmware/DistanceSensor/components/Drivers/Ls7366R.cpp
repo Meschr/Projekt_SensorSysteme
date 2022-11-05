@@ -74,21 +74,28 @@ static const char* TAG = "Ls7366R";
 #define LOAD_OTR 0xE4
 
 void CLs7366r::Init()
-{
+{   
+    //https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/peripherals/spi_master.html?highlight=spi_devicei#_CPPv429spi_device_interface_config_t
     spi_device_interface_config_t spi_device_cfg = {
-        .command_bits = 8,
-        .address_bits = 0,
-        .mode = 0,
-        .cs_ena_pretrans = 1,
-        .clock_speed_hz = 1000000,
-        .spics_io_num = PIN_NUM_CS,
-        .flags = SPI_DEVICE_HALFDUPLEX,
-        .queue_size = 7
+        .command_bits = 8,                  
+        .address_bits = 0,                 
+        .dummy_bits = 0,                    
+        .mode = 0,                          
+        .duty_cycle_pos = 0,                
+        .cs_ena_pretrans = 1,               
+        .cs_ena_posttrans = 0,              
+        .clock_speed_hz = 1000000,          
+        .input_delay_ns = 0,                
+        .spics_io_num = PIN_NUM_CS,         
+        .flags = SPI_DEVICE_HALFDUPLEX,     
+        .queue_size = 7,                   
+        .post_cb = 0                         
     };
+
     CSpiBusHandler::GetInstance()->AddDevice(spi_device_cfg, mSpiDeviceHdl);
     ESP_LOGI(TAG, "Added to spi bus");
 
-    //setting up LS7366R registers
+    //setting up LS7366R internal registers
     esp_err_t err;
     spi_transaction_t confMDR0;
     memset(&confMDR0, 0, sizeof(confMDR0));

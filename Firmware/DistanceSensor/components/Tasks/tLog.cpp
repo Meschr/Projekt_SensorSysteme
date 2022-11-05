@@ -39,6 +39,6 @@ void tLog(void* pvParameters)
             EnableDisableLoggingLED(0);
         }
 
-        //CDataLogStateMachine::GetInstance()->Receive();
+        CDataLogStateMachine::GetInstance()->Receive();
     }
 }
