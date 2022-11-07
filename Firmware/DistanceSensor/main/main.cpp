@@ -29,10 +29,6 @@ extern "C" int app_main(void)
     CMpu6050* mCMpu6050_kabel = new CMpu6050(MPU6050_ADDRESS_HIGH, ACCEL_FULL_SCALE_RANGE_2, GYRO_FULL_SCALE_RANGE_250);
     mCMpu6050_kabel->Init();
 
-    float* accelRes = (float*)(1.0/16384.0); 
-    float* gyroRes = (float*)(125.0/16384.0);
-    mCMpu6050_kabel->Calibrate(accelRes, gyroRes);
-
     // Initialise the xLastWakeTime variable with the current time.
     TickType_t xLastWakeTime = xTaskGetTickCount();
     const TickType_t xFrequency = 500 / portTICK_PERIOD_MS; // 1s 

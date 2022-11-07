@@ -18,7 +18,7 @@ CI2cBusHandler* CI2cBusHandler::GetInstance(void)
 CI2cBusHandler::CI2cBusHandler(void)
 {
 	mI2cPortNum = I2C_NUM_0;
-	mBusFrequency = 100*1000;
+	mBusFrequency = 800*1000;
 
 	i2c_config_t conf;
 	conf.mode = I2C_MODE_MASTER;
