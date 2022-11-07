@@ -14,19 +14,25 @@ int last_update = 0, first_update = 0, now = 0;
 
 uint8_t buffer[14];
 
-CMpu6050::CMpu6050(EMpu6050_Address address)
+CMpu6050::CMpu6050(EMpu6050_Address address, EAccelFullScaleRange accelRange, EGyroFullScaleRange gyroRange) 
 {
+    i2cBus = CI2cBusHandler::GetInstance();
     deviceAddress = address;
+    currentAccelRange = accelRange;
+    currentGyroRange = gyroRange;
+    TAG_MPU6050 = address == MPU6050_ADDRESS_LOW ? "MPU6050(0x68)" : "MPU6050(0x69)";
+}
+
+CMpu6050::~CMpu6050(void)
+{
+    delete i2cBus;
+    i2cBus = NULL;
 }
 
 void CMpu6050::Init()
 {
-    init_i2c_driver();
-
     SetClockSource(MPU6050_CLOCK_PLL_XGYRO);
-    currentGyroRange = GYRO_FULL_SCALE_RANGE_250;
     SetFullScaleGyroRange(currentGyroRange);
-    currentAccelRange = ACCEL_FULL_SCALE_RANGE_2;
     SetFullScaleAccelRange(currentAccelRange);
     SetSleepEnabled(0);
 }
@@ -43,7 +49,7 @@ const char* CMpu6050::GetTag()
 
 uint8_t CMpu6050::GetAuxVddioLevel()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_YG_OFFS_TC,
@@ -56,7 +62,7 @@ uint8_t CMpu6050::GetAuxVddioLevel()
 
 void CMpu6050::SetAuxVddioLevel(uint8_t level)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_YG_OFFS_TC,
@@ -67,7 +73,7 @@ void CMpu6050::SetAuxVddioLevel(uint8_t level)
 
 uint8_t CMpu6050::GetOutputRate()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_SMPLRT_DIV,
@@ -79,7 +85,7 @@ uint8_t CMpu6050::GetOutputRate()
 
 void CMpu6050::SetOutputRate(uint8_t rate)
 {
-    esp32_i2c_write_byte
+    i2cBus->esp32_i2c_write_byte
     (
         deviceAddress,
         MPU6050_REGISTER_SMPLRT_DIV,
@@ -89,7 +95,7 @@ void CMpu6050::SetOutputRate(uint8_t rate)
 
 uint8_t CMpu6050::GetExternalFrameSync()
 {
-    esp32_i2c_read_bits
+    i2cBus->esp32_i2c_read_bits
     (
         deviceAddress,
         MPU6050_REGISTER_CONFIG,
@@ -103,7 +109,7 @@ uint8_t CMpu6050::GetExternalFrameSync()
 
 void CMpu6050::SetExternalFrameSync(uint8_t sync)
 {
-    esp32_i2c_write_bits
+    i2cBus->esp32_i2c_write_bits
     (
         deviceAddress,
         MPU6050_REGISTER_CONFIG,
@@ -115,7 +121,7 @@ void CMpu6050::SetExternalFrameSync(uint8_t sync)
 
 uint8_t CMpu6050::GetDlpfMode()
 {
-    esp32_i2c_read_bits
+    i2cBus->esp32_i2c_read_bits
     (
         deviceAddress,
         MPU6050_REGISTER_CONFIG,
@@ -129,7 +135,7 @@ uint8_t CMpu6050::GetDlpfMode()
 
 void CMpu6050::SetDlpfMode(uint8_t mode)
 {
-    esp32_i2c_write_bits
+    i2cBus->esp32_i2c_write_bits
     (
         deviceAddress,
         MPU6050_REGISTER_CONFIG,
@@ -141,7 +147,7 @@ void CMpu6050::SetDlpfMode(uint8_t mode)
 
 uint8_t CMpu6050::GetFullScaleGyroRange()
 {
-    esp32_i2c_read_bits
+    i2cBus->esp32_i2c_read_bits
     (
         deviceAddress,
         MPU6050_REGISTER_GYRO_CONFIG,
@@ -155,7 +161,7 @@ uint8_t CMpu6050::GetFullScaleGyroRange()
 
 void CMpu6050::SetFullScaleGyroRange(uint8_t range)
 {
-    esp32_i2c_write_bits
+    i2cBus->esp32_i2c_write_bits
     (
         deviceAddress,
         MPU6050_REGISTER_GYRO_CONFIG,
@@ -167,13 +173,13 @@ void CMpu6050::SetFullScaleGyroRange(uint8_t range)
 
 uint8_t CMpu6050::GetAccelXSelfTestFactoryTrim()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_SELF_TEST_X,
         &buffer[0]
     );
-	esp32_i2c_read_byte
+	i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_SELF_TEST_A,
@@ -185,13 +191,13 @@ uint8_t CMpu6050::GetAccelXSelfTestFactoryTrim()
 
 uint8_t CMpu6050::GetAccelYSelfTestFactoryTrim()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_SELF_TEST_Y,
         &buffer[0]
     );
-	esp32_i2c_read_byte
+	i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_SELF_TEST_A,
@@ -203,7 +209,7 @@ uint8_t CMpu6050::GetAccelYSelfTestFactoryTrim()
 
 uint8_t CMpu6050::GetAccelZSelfTestFactoryTrim()
 {
-    esp32_i2c_read_bytes
+    i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
         MPU6050_REGISTER_SELF_TEST_Z,
@@ -216,7 +222,7 @@ uint8_t CMpu6050::GetAccelZSelfTestFactoryTrim()
 
 uint8_t CMpu6050::GetGyroXSelfTestFactoryTrim()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_SELF_TEST_X,
@@ -228,7 +234,7 @@ uint8_t CMpu6050::GetGyroXSelfTestFactoryTrim()
 
 uint8_t CMpu6050::GetGyroYSelfTestFactoryTrim()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_SELF_TEST_Y,
@@ -240,7 +246,7 @@ uint8_t CMpu6050::GetGyroYSelfTestFactoryTrim()
 
 uint8_t CMpu6050::GetGyroZSelfTestFactoryTrim()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_SELF_TEST_Z,
@@ -252,7 +258,7 @@ uint8_t CMpu6050::GetGyroZSelfTestFactoryTrim()
 
 bool CMpu6050::GetAccelXSelfTest()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_ACCEL_CONFIG,
@@ -265,7 +271,7 @@ bool CMpu6050::GetAccelXSelfTest()
 
 void CMpu6050::SetAccelXSelfTest(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_ACCEL_CONFIG,
@@ -276,7 +282,7 @@ void CMpu6050::SetAccelXSelfTest(bool enabled)
 
 bool CMpu6050::GetAccelYSelfTest()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_ACCEL_CONFIG,
@@ -289,7 +295,7 @@ bool CMpu6050::GetAccelYSelfTest()
 
 void CMpu6050::SetAccelYSelfTest(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_ACCEL_CONFIG,
@@ -300,7 +306,7 @@ void CMpu6050::SetAccelYSelfTest(bool enabled)
 
 bool CMpu6050::GetAccelZSelfTest()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_ACCEL_CONFIG,
@@ -313,7 +319,7 @@ bool CMpu6050::GetAccelZSelfTest()
 
 void CMpu6050::SetAccelZSelfTest(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_ACCEL_CONFIG,
@@ -324,7 +330,7 @@ void CMpu6050::SetAccelZSelfTest(bool enabled)
 
 uint8_t CMpu6050::GetFullScaleAccelRange()
 {
-    esp32_i2c_read_bits
+    i2cBus->esp32_i2c_read_bits
     (
         deviceAddress,
         MPU6050_REGISTER_ACCEL_CONFIG,
@@ -338,7 +344,7 @@ uint8_t CMpu6050::GetFullScaleAccelRange()
 
 void CMpu6050::SetFullScaleAccelRange(uint8_t range)
 {
-    esp32_i2c_write_bits
+    i2cBus->esp32_i2c_write_bits
     (
         deviceAddress,
         MPU6050_REGISTER_ACCEL_CONFIG,
@@ -348,7 +354,7 @@ void CMpu6050::SetFullScaleAccelRange(uint8_t range)
 
 uint8_t CMpu6050::GetDhpfMode()
 {
-    esp32_i2c_read_bits
+    i2cBus->esp32_i2c_read_bits
     (
         deviceAddress,
         MPU6050_REGISTER_ACCEL_CONFIG,
@@ -361,7 +367,7 @@ uint8_t CMpu6050::GetDhpfMode()
 
 void CMpu6050::SetDhpfMode(uint8_t mode)
 {
-    esp32_i2c_write_bits
+    i2cBus->esp32_i2c_write_bits
     (
         deviceAddress,
         MPU6050_REGISTER_ACCEL_CONFIG,
@@ -373,7 +379,7 @@ void CMpu6050::SetDhpfMode(uint8_t mode)
 
 uint8_t CMpu6050::GetFreefallDetectionThreshold()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_FF_THR,
@@ -385,7 +391,7 @@ uint8_t CMpu6050::GetFreefallDetectionThreshold()
 
 void CMpu6050::SetFreefallDetectionThreshold(uint8_t threshold)
 {
-    esp32_i2c_write_byte
+    i2cBus->esp32_i2c_write_byte
     (
         deviceAddress,
         MPU6050_REGISTER_FF_THR,
@@ -395,7 +401,7 @@ void CMpu6050::SetFreefallDetectionThreshold(uint8_t threshold)
 
 uint8_t CMpu6050::GetFreefallDetectionDuration()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_FF_DUR,
@@ -407,7 +413,7 @@ uint8_t CMpu6050::GetFreefallDetectionDuration()
 
 void CMpu6050::SetFreefallDetectionDuration(uint8_t duration)
 {
-    esp32_i2c_write_byte
+    i2cBus->esp32_i2c_write_byte
     (
         deviceAddress,
         MPU6050_REGISTER_FF_DUR,
@@ -417,7 +423,7 @@ void CMpu6050::SetFreefallDetectionDuration(uint8_t duration)
 
 uint8_t CMpu6050::GetMotionDetectionThreshold()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_MOT_THR,
@@ -429,7 +435,7 @@ uint8_t CMpu6050::GetMotionDetectionThreshold()
 
 void CMpu6050::SetMotionDetectionThreshold(uint8_t threshold)
 {
-    esp32_i2c_write_byte
+    i2cBus->esp32_i2c_write_byte
     (
         deviceAddress,
         MPU6050_REGISTER_MOT_THR,
@@ -439,7 +445,7 @@ void CMpu6050::SetMotionDetectionThreshold(uint8_t threshold)
 
 uint8_t CMpu6050::GetMotionDetectionDuration()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_MOT_DUR,
@@ -451,7 +457,7 @@ uint8_t CMpu6050::GetMotionDetectionDuration()
 
 void CMpu6050::SetMotionDetectionDuration(uint8_t duration)
 {
-    esp32_i2c_write_byte
+    i2cBus->esp32_i2c_write_byte
     (
         deviceAddress,
         MPU6050_REGISTER_MOT_DUR,
@@ -461,7 +467,7 @@ void CMpu6050::SetMotionDetectionDuration(uint8_t duration)
 
 uint8_t CMpu6050::GetZeroMotionDetectionThreshold()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_ZRMOT_THR,
@@ -473,7 +479,7 @@ uint8_t CMpu6050::GetZeroMotionDetectionThreshold()
 
 void CMpu6050::SetZeroMotionDetectionThreshold(uint8_t threshold)
 {
-    esp32_i2c_write_byte
+    i2cBus->esp32_i2c_write_byte
     (
         deviceAddress,
         MPU6050_REGISTER_ZRMOT_THR,
@@ -483,7 +489,7 @@ void CMpu6050::SetZeroMotionDetectionThreshold(uint8_t threshold)
 
 uint8_t CMpu6050::GetZeroMotionDetectionDuration()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_ZRMOT_DUR,
@@ -495,7 +501,7 @@ uint8_t CMpu6050::GetZeroMotionDetectionDuration()
 
 void CMpu6050::SetZeroMotionDetectionDuration(uint8_t duration)
 {
-    esp32_i2c_write_byte
+    i2cBus->esp32_i2c_write_byte
     (
         deviceAddress,
         MPU6050_REGISTER_ZRMOT_DUR,
@@ -505,7 +511,7 @@ void CMpu6050::SetZeroMotionDetectionDuration(uint8_t duration)
 
 bool CMpu6050::GetTempFifoEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_FIFO_EN,
@@ -518,7 +524,7 @@ bool CMpu6050::GetTempFifoEnabled()
 
 void CMpu6050::SetTempFifoEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_FIFO_EN,
@@ -529,7 +535,7 @@ void CMpu6050::SetTempFifoEnabled(bool enabled)
 
 bool CMpu6050::GetXGyroFifoEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_FIFO_EN,
@@ -542,7 +548,7 @@ bool CMpu6050::GetXGyroFifoEnabled()
 
 void CMpu6050::SetXGyroFifoEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_FIFO_EN,
@@ -553,7 +559,7 @@ void CMpu6050::SetXGyroFifoEnabled(bool enabled)
 
 bool CMpu6050::GetYGyroFifoEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_FIFO_EN,
@@ -566,7 +572,7 @@ bool CMpu6050::GetYGyroFifoEnabled()
 
 void CMpu6050::SetYGyroFifoEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_FIFO_EN,
@@ -577,7 +583,7 @@ void CMpu6050::SetYGyroFifoEnabled(bool enabled)
 
 bool CMpu6050::GetZGyroFifoEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_FIFO_EN,
@@ -590,7 +596,7 @@ bool CMpu6050::GetZGyroFifoEnabled()
 
 void CMpu6050::SetZGyroFifoEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_FIFO_EN,
@@ -601,7 +607,7 @@ void CMpu6050::SetZGyroFifoEnabled(bool enabled)
 
 bool CMpu6050::GetAccelFifoEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_FIFO_EN,
@@ -614,7 +620,7 @@ bool CMpu6050::GetAccelFifoEnabled()
 
 void CMpu6050::SetAccelFifoEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_FIFO_EN,
@@ -625,7 +631,7 @@ void CMpu6050::SetAccelFifoEnabled(bool enabled)
 
 bool CMpu6050::GetSlave2FifoEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_FIFO_EN,
@@ -638,7 +644,7 @@ bool CMpu6050::GetSlave2FifoEnabled()
 
 void CMpu6050::SetSlave2FifoEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_FIFO_EN,
@@ -649,7 +655,7 @@ void CMpu6050::SetSlave2FifoEnabled(bool enabled)
 
 bool CMpu6050::GetSlave1FifoEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_FIFO_EN,
@@ -662,7 +668,7 @@ bool CMpu6050::GetSlave1FifoEnabled()
 
 void CMpu6050::SetSlave1FifoEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_FIFO_EN,
@@ -673,7 +679,7 @@ void CMpu6050::SetSlave1FifoEnabled(bool enabled)
 
 bool CMpu6050::GetSlave0FifoEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_FIFO_EN,
@@ -686,7 +692,7 @@ bool CMpu6050::GetSlave0FifoEnabled()
 
 void CMpu6050::SetSlave0FifoEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_FIFO_EN,
@@ -697,7 +703,7 @@ void CMpu6050::SetSlave0FifoEnabled(bool enabled)
 
 bool CMpu6050::GetMultiMasterEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_CTRL,
@@ -710,7 +716,7 @@ bool CMpu6050::GetMultiMasterEnabled()
 
 void CMpu6050::SetMultiMasterEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_CTRL,
@@ -721,7 +727,7 @@ void CMpu6050::SetMultiMasterEnabled(bool enabled)
 
 bool CMpu6050::GetWaitForExternalSensorEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_CTRL,
@@ -734,7 +740,7 @@ bool CMpu6050::GetWaitForExternalSensorEnabled()
 
 void CMpu6050::SetWaitForExternalSensorEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_CTRL,
@@ -745,7 +751,7 @@ void CMpu6050::SetWaitForExternalSensorEnabled(bool enabled)
 
 bool CMpu6050::GetSlave3FifoEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_CTRL,
@@ -758,7 +764,7 @@ bool CMpu6050::GetSlave3FifoEnabled()
 
 void CMpu6050::SetSlave3FifoEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_CTRL,
@@ -769,7 +775,7 @@ void CMpu6050::SetSlave3FifoEnabled(bool enabled)
 
 bool CMpu6050::GetSlaveReadWriteTransitionEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_CTRL,
@@ -782,7 +788,7 @@ bool CMpu6050::GetSlaveReadWriteTransitionEnabled()
 
 void CMpu6050::SetSlaveReadWriteTransitionEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_CTRL,
@@ -793,7 +799,7 @@ void CMpu6050::SetSlaveReadWriteTransitionEnabled(bool enabled)
 
 uint8_t CMpu6050::GetMasterClockSpeed()
 {
-    esp32_i2c_read_bits
+    i2cBus->esp32_i2c_read_bits
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_CTRL,
@@ -807,7 +813,7 @@ uint8_t CMpu6050::GetMasterClockSpeed()
 
 void CMpu6050::SetMasterClockSpeed(uint8_t speed)
 {
-    esp32_i2c_write_bits
+    i2cBus->esp32_i2c_write_bits
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_CTRL,
@@ -822,7 +828,7 @@ uint8_t CMpu6050::GetSlaveAddress(uint8_t num)
     if (num > 3)
         return (0);
 
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV0_ADDR + num * 3,
@@ -837,7 +843,7 @@ void CMpu6050::SetSlaveAddress(uint8_t num, uint8_t address)
     if (num > 3)
         return;
 
-    esp32_i2c_write_byte
+    i2cBus->esp32_i2c_write_byte
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV0_ADDR + num * 3,
@@ -850,7 +856,7 @@ uint8_t CMpu6050::GetSlaveRegister(uint8_t num)
     if (num > 3)
         return (0);
 
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV0_REG + num * 3,
@@ -865,7 +871,7 @@ void CMpu6050::SetSlaveRegister(uint8_t num, uint8_t reg)
     if (num > 3)
         return;
 
-    esp32_i2c_write_byte
+    i2cBus->esp32_i2c_write_byte
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV0_REG + num * 3,
@@ -878,7 +884,7 @@ bool CMpu6050::GetSlaveEnabled(uint8_t num)
     if (num > 3)
         return (0);
 
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV0_CTRL + num * 3,
@@ -894,7 +900,7 @@ void CMpu6050::SetSlaveEnabled(uint8_t num, bool enabled)
     if (num > 3)
         return;
 
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV0_CTRL + num * 3,
@@ -908,7 +914,7 @@ bool CMpu6050::GetSlaveWordByteSwap(uint8_t num)
     if (num > 3)
         return (0);
 
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV0_CTRL + num * 3,
@@ -924,7 +930,7 @@ void CMpu6050::SetSlaveWordByteSwap(uint8_t num, bool enabled)
     if (num > 3)
         return;
 
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV0_CTRL + num * 3,
@@ -938,7 +944,7 @@ bool CMpu6050::GetSlaveWriteMode(uint8_t num)
     if (num > 3)
         return (0);
 
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV0_CTRL + num * 3,
@@ -954,7 +960,7 @@ void CMpu6050::SetSlaveWriteMode(uint8_t num, bool mode)
     if (num > 3)
         return;
 
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV0_CTRL + num * 3,
@@ -968,7 +974,7 @@ bool CMpu6050::GetSlaveWordGroupOffset(uint8_t num)
     if (num > 3)
         return (0);
 
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV0_CTRL + num * 3,
@@ -984,7 +990,7 @@ void CMpu6050::SetSlaveWordGroupOffset(uint8_t num, bool enabled)
     if (num > 3)
         return;
 
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV0_CTRL + num * 3,
@@ -998,7 +1004,7 @@ uint8_t CMpu6050::GetSlaveDataLength(uint8_t num)
     if (num > 3)
         return (0);
 
-    esp32_i2c_read_bits
+    i2cBus->esp32_i2c_read_bits
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV0_CTRL + num * 3,
@@ -1015,7 +1021,7 @@ void CMpu6050::SetSlaveDataLength(uint8_t num, uint8_t length)
     if (num > 3)
         return;
 
-    esp32_i2c_write_bits
+    i2cBus->esp32_i2c_write_bits
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV0_CTRL + num * 3,
@@ -1027,7 +1033,7 @@ void CMpu6050::SetSlaveDataLength(uint8_t num, uint8_t length)
 
 uint8_t CMpu6050::GetSlave4Address()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV4_ADDR,
@@ -1039,7 +1045,7 @@ uint8_t CMpu6050::GetSlave4Address()
 
 void CMpu6050::SetSlave4Address(uint8_t address)
 {
-    esp32_i2c_write_byte
+    i2cBus->esp32_i2c_write_byte
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV4_ADDR,
@@ -1049,7 +1055,7 @@ void CMpu6050::SetSlave4Address(uint8_t address)
 
 uint8_t CMpu6050::GetSlave4Register()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV4_REG,
@@ -1061,7 +1067,7 @@ uint8_t CMpu6050::GetSlave4Register()
 
 void CMpu6050::SetSlave4Register(uint8_t reg)
 {
-    esp32_i2c_write_byte
+    i2cBus->esp32_i2c_write_byte
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV4_REG,
@@ -1071,7 +1077,7 @@ void CMpu6050::SetSlave4Register(uint8_t reg)
 
 void CMpu6050::SetSlave4OutputByte(uint8_t data)
 {
-    esp32_i2c_write_byte
+    i2cBus->esp32_i2c_write_byte
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV4_DO,
@@ -1081,7 +1087,7 @@ void CMpu6050::SetSlave4OutputByte(uint8_t data)
 
 bool CMpu6050::GetSlave4Enabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV4_CTRL,
@@ -1094,7 +1100,7 @@ bool CMpu6050::GetSlave4Enabled()
 
 void CMpu6050::SetSlave4Enabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV4_CTRL,
@@ -1105,7 +1111,7 @@ void CMpu6050::SetSlave4Enabled(bool enabled)
 
 bool CMpu6050::GetSlave4TnterruptEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV4_CTRL,
@@ -1118,7 +1124,7 @@ bool CMpu6050::GetSlave4TnterruptEnabled()
 
 void CMpu6050::SetSlave4InterruptEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV4_CTRL,
@@ -1129,7 +1135,7 @@ void CMpu6050::SetSlave4InterruptEnabled(bool enabled)
 
 bool CMpu6050::GetSlave4WriteMode()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV4_CTRL,
@@ -1142,7 +1148,7 @@ bool CMpu6050::GetSlave4WriteMode()
 
 void CMpu6050::SetSlave4WriteMode(bool mode)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV4_CTRL,
@@ -1153,7 +1159,7 @@ void CMpu6050::SetSlave4WriteMode(bool mode)
 
 uint8_t CMpu6050::GetSlave4MasterDelay()
 {
-    esp32_i2c_read_bits
+    i2cBus->esp32_i2c_read_bits
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV4_CTRL,
@@ -1167,7 +1173,7 @@ uint8_t CMpu6050::GetSlave4MasterDelay()
 
 void CMpu6050::SetSlave4MasterDelay(uint8_t delay)
 {
-    esp32_i2c_write_bits
+    i2cBus->esp32_i2c_write_bits
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV4_CTRL,
@@ -1179,7 +1185,7 @@ void CMpu6050::SetSlave4MasterDelay(uint8_t delay)
 
 uint8_t CMpu6050::GetSlave4InputByte()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV4_DI,
@@ -1191,7 +1197,7 @@ uint8_t CMpu6050::GetSlave4InputByte()
 
 bool CMpu6050::GetPassthroughStatus()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_STATUS,
@@ -1204,7 +1210,7 @@ bool CMpu6050::GetPassthroughStatus()
 
 bool CMpu6050::GetSlave4IsDone()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_STATUS,
@@ -1217,7 +1223,7 @@ bool CMpu6050::GetSlave4IsDone()
 
 bool CMpu6050::GetLostArbitration()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_STATUS,
@@ -1230,7 +1236,7 @@ bool CMpu6050::GetLostArbitration()
 
 bool CMpu6050::GetSlave4Nack()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_STATUS,
@@ -1243,7 +1249,7 @@ bool CMpu6050::GetSlave4Nack()
 
 bool CMpu6050::GetSlave3Nack()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_STATUS,
@@ -1256,7 +1262,7 @@ bool CMpu6050::GetSlave3Nack()
 
 bool CMpu6050::GetSlave2Nack()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_STATUS,
@@ -1269,7 +1275,7 @@ bool CMpu6050::GetSlave2Nack()
 
 bool CMpu6050::GetSlave1Nack()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_STATUS,
@@ -1282,7 +1288,7 @@ bool CMpu6050::GetSlave1Nack()
 
 bool CMpu6050::GetSlave0Nack()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_STATUS,
@@ -1295,7 +1301,7 @@ bool CMpu6050::GetSlave0Nack()
 
 bool CMpu6050::GetInterruptMode()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_PIN_CFG,
@@ -1308,7 +1314,7 @@ bool CMpu6050::GetInterruptMode()
 
 void CMpu6050::SetInterruptMode(bool mode)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_PIN_CFG,
@@ -1319,7 +1325,7 @@ void CMpu6050::SetInterruptMode(bool mode)
 
 bool CMpu6050::GetInterruptDrive()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_PIN_CFG,
@@ -1332,7 +1338,7 @@ bool CMpu6050::GetInterruptDrive()
 
 void CMpu6050::SetInterruptDrive(bool drive)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_PIN_CFG,
@@ -1343,7 +1349,7 @@ void CMpu6050::SetInterruptDrive(bool drive)
 
 bool CMpu6050::GetInterruptLatch()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_PIN_CFG,
@@ -1356,7 +1362,7 @@ bool CMpu6050::GetInterruptLatch()
 
 void CMpu6050::SetInterruptLatch(bool latch)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_PIN_CFG,
@@ -1367,7 +1373,7 @@ void CMpu6050::SetInterruptLatch(bool latch)
 
 bool CMpu6050::GetInterruptLatchClear()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_PIN_CFG,
@@ -1380,7 +1386,7 @@ bool CMpu6050::GetInterruptLatchClear()
 
 void CMpu6050::SetInterruptLatchClear(bool clear)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_PIN_CFG,
@@ -1391,7 +1397,7 @@ void CMpu6050::SetInterruptLatchClear(bool clear)
 
 bool CMpu6050::GetFsyncInterruptLevel()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_PIN_CFG,
@@ -1404,7 +1410,7 @@ bool CMpu6050::GetFsyncInterruptLevel()
 
 void CMpu6050::SetFsyncInterruptLevel(bool level)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_PIN_CFG,
@@ -1415,7 +1421,7 @@ void CMpu6050::SetFsyncInterruptLevel(bool level)
 
 bool CMpu6050::GetFsyncInterruptEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_PIN_CFG,
@@ -1428,7 +1434,7 @@ bool CMpu6050::GetFsyncInterruptEnabled()
 
 void CMpu6050::SetFsyncInterruptEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_PIN_CFG,
@@ -1439,7 +1445,7 @@ void CMpu6050::SetFsyncInterruptEnabled(bool enabled)
 
 bool CMpu6050::GetI2cBypassEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_PIN_CFG,
@@ -1452,7 +1458,7 @@ bool CMpu6050::GetI2cBypassEnabled()
 
 void CMpu6050::SetI2cBypassEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_PIN_CFG,
@@ -1463,7 +1469,7 @@ void CMpu6050::SetI2cBypassEnabled(bool enabled)
 
 bool CMpu6050::GetClockOutputEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_PIN_CFG,
@@ -1476,7 +1482,7 @@ bool CMpu6050::GetClockOutputEnabled()
 
 void CMpu6050::SetClockOutputEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_PIN_CFG,
@@ -1487,7 +1493,7 @@ void CMpu6050::SetClockOutputEnabled(bool enabled)
 
 uint8_t CMpu6050::GetIntEnabled()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_INT_ENABLE,
@@ -1499,7 +1505,7 @@ uint8_t CMpu6050::GetIntEnabled()
 
 void CMpu6050::SetIntEnabled(uint8_t enabled)
 {
-    esp32_i2c_write_byte
+    i2cBus->esp32_i2c_write_byte
     (
         deviceAddress,
         MPU6050_REGISTER_INT_ENABLE,
@@ -1509,7 +1515,7 @@ void CMpu6050::SetIntEnabled(uint8_t enabled)
 
 bool CMpu6050::GetIntFreefallEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_ENABLE,
@@ -1522,7 +1528,7 @@ bool CMpu6050::GetIntFreefallEnabled()
 
 void CMpu6050::SetIntFreefallEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_ENABLE,
@@ -1533,7 +1539,7 @@ void CMpu6050::SetIntFreefallEnabled(bool enabled)
 
 bool CMpu6050::GetIntMotionEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_ENABLE,
@@ -1546,7 +1552,7 @@ bool CMpu6050::GetIntMotionEnabled()
 
 void CMpu6050::SetIntMotionEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_ENABLE,
@@ -1557,7 +1563,7 @@ void CMpu6050::SetIntMotionEnabled(bool enabled)
 
 bool CMpu6050::GetIntZeroMotionEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_ENABLE,
@@ -1570,7 +1576,7 @@ bool CMpu6050::GetIntZeroMotionEnabled()
 
 void CMpu6050::SetIntZeroMotionEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_ENABLE,
@@ -1581,7 +1587,7 @@ void CMpu6050::SetIntZeroMotionEnabled(bool enabled)
 
 bool CMpu6050::GetIntFifoBufferOverflowEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_ENABLE,
@@ -1594,7 +1600,7 @@ bool CMpu6050::GetIntFifoBufferOverflowEnabled()
 
 void CMpu6050::SetIntFifoBufferOverflowEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_ENABLE,
@@ -1605,7 +1611,7 @@ void CMpu6050::SetIntFifoBufferOverflowEnabled(bool enabled)
 
 bool CMpu6050::GetIntI2cMasterEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_ENABLE,
@@ -1618,7 +1624,7 @@ bool CMpu6050::GetIntI2cMasterEnabled()
 
 void CMpu6050::SetIntI2cMasterEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_ENABLE,
@@ -1629,7 +1635,7 @@ void CMpu6050::SetIntI2cMasterEnabled(bool enabled)
 
 bool CMpu6050::GetIntDataReadyEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_ENABLE,
@@ -1642,7 +1648,7 @@ bool CMpu6050::GetIntDataReadyEnabled()
 
 void CMpu6050::SetIntDataReadyEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_ENABLE,
@@ -1653,7 +1659,7 @@ void CMpu6050::SetIntDataReadyEnabled(bool enabled)
 
 uint8_t CMpu6050::GetIntStatus()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_INT_STATUS,
@@ -1665,7 +1671,7 @@ uint8_t CMpu6050::GetIntStatus()
 
 bool CMpu6050::GetIntFreefallStatus()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_STATUS,
@@ -1678,7 +1684,7 @@ bool CMpu6050::GetIntFreefallStatus()
 
 bool CMpu6050::GetIntMotionStatus()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_STATUS,
@@ -1691,7 +1697,7 @@ bool CMpu6050::GetIntMotionStatus()
 
 bool CMpu6050::GetIntZeroMotionStatus()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_STATUS,
@@ -1704,7 +1710,7 @@ bool CMpu6050::GetIntZeroMotionStatus()
 
 bool CMpu6050::GetIntFifoBufferOverflowStatus()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_STATUS,
@@ -1717,7 +1723,7 @@ bool CMpu6050::GetIntFifoBufferOverflowStatus()
 
 bool CMpu6050::GetIntI2cMasterStatus()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_STATUS,
@@ -1730,7 +1736,7 @@ bool CMpu6050::GetIntI2cMasterStatus()
 
 bool CMpu6050::GetIntDataReadyStatus()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_STATUS,
@@ -1744,7 +1750,7 @@ bool CMpu6050::GetIntDataReadyStatus()
 SAccelerationData CMpu6050::GetAcceleration()
 {   
     SAccelerationData data = {0};
-    esp32_i2c_read_bytes
+    i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
         MPU6050_REGISTER_ACCEL_XOUT_H,
@@ -1760,7 +1766,7 @@ SAccelerationData CMpu6050::GetAcceleration()
 
 int16_t CMpu6050::GetAccelerationX()
 {
-    esp32_i2c_read_bytes
+    i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
         MPU6050_REGISTER_ACCEL_XOUT_H,
@@ -1771,9 +1777,34 @@ int16_t CMpu6050::GetAccelerationX()
     return ((((int16_t) buffer[0]) << 8) | buffer[1]);
 }
 
+int GetIntValueFromAccelRange(EAccelFullScaleRange range)
+{
+    switch(range)
+    {
+        case ACCEL_FULL_SCALE_RANGE_2:
+            return 16384;
+        case ACCEL_FULL_SCALE_RANGE_4:
+            return 8192; 
+        case ACCEL_FULL_SCALE_RANGE_8:
+            return 4096;
+        case ACCEL_FULL_SCALE_RANGE_16:
+            return 2048;
+        default:
+            return 0; //todo handle this case
+    }
+}
+
+double CMpu6050::GetAndConvertAccelerationX()
+{
+    auto rawReading = CMpu6050::GetAccelerationX();
+    double accelXInG = rawReading/static_cast<double>(GetIntValueFromAccelRange(currentAccelRange));
+    ESP_LOGI(TAG_MPU6050, "Acceleration in X: %lf G",accelXInG);
+    return accelXInG;        
+}
+
 int16_t CMpu6050::GetAccelerationY()
 {
-    esp32_i2c_read_bytes
+    i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
         MPU6050_REGISTER_ACCEL_YOUT_H,
@@ -1786,7 +1817,7 @@ int16_t CMpu6050::GetAccelerationY()
 
 int16_t CMpu6050::GetAccelerationZ()
 {
-    esp32_i2c_read_bytes
+    i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
         MPU6050_REGISTER_ACCEL_ZOUT_H,
@@ -1799,7 +1830,7 @@ int16_t CMpu6050::GetAccelerationZ()
 
 float CMpu6050::GetTemperature()
 {
-    esp32_i2c_read_bytes
+    i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
         MPU6050_REGISTER_TEMP_OUT_H,
@@ -1814,7 +1845,7 @@ SRotationData CMpu6050::GetRotation()
 {
     SRotationData data = {0};
 
-    esp32_i2c_read_bytes
+    i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
         MPU6050_REGISTER_GYRO_XOUT_H,
@@ -1830,7 +1861,7 @@ SRotationData CMpu6050::GetRotation()
 
 int16_t CMpu6050::GetRotationX()
 {
-    esp32_i2c_read_bytes
+    i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
         MPU6050_REGISTER_GYRO_XOUT_H,
@@ -1843,7 +1874,7 @@ int16_t CMpu6050::GetRotationX()
 
 int16_t CMpu6050::GetRotationY()
 {
-    esp32_i2c_read_bytes
+    i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
         MPU6050_REGISTER_GYRO_YOUT_H,
@@ -1856,7 +1887,7 @@ int16_t CMpu6050::GetRotationY()
 
 int16_t CMpu6050::GetRotationZ()
 {
-    esp32_i2c_read_bytes
+    i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
         MPU6050_REGISTER_GYRO_ZOUT_H,
@@ -1873,7 +1904,7 @@ void CMpu6050::GetMotion
     mpu6050_rotation_t* data_gyro
 )
 {
-    esp32_i2c_read_bytes
+    i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
         MPU6050_REGISTER_ACCEL_XOUT_H,
@@ -1891,7 +1922,7 @@ void CMpu6050::GetMotion
 
 uint8_t CMpu6050::GetExternalSensorByte(int position)
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_EXT_SENS_DATA_00 + position, 
@@ -1903,7 +1934,7 @@ uint8_t CMpu6050::GetExternalSensorByte(int position)
 
 uint16_t CMpu6050::GetExternalSensorWord(int position)
 {
-    esp32_i2c_read_bytes
+    i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
         MPU6050_REGISTER_EXT_SENS_DATA_00 + position,
@@ -1916,7 +1947,7 @@ uint16_t CMpu6050::GetExternalSensorWord(int position)
 
 uint32_t CMpu6050::GetExternalSensorDword(int position)
 {
-    esp32_i2c_read_bytes
+    i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
         MPU6050_REGISTER_EXT_SENS_DATA_00 + position,
@@ -1935,7 +1966,7 @@ uint32_t CMpu6050::GetExternalSensorDword(int position)
 
 uint8_t CMpu6050::GetMotionStatus()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_MOT_DETECT_STATUS,
@@ -1947,7 +1978,7 @@ uint8_t CMpu6050::GetMotionStatus()
 
 bool CMpu6050::GetXNegativeMotionDetected()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_MOT_DETECT_STATUS,
@@ -1960,7 +1991,7 @@ bool CMpu6050::GetXNegativeMotionDetected()
 
 bool CMpu6050::GetXPositiveMotionDetected()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_MOT_DETECT_STATUS,
@@ -1973,7 +2004,7 @@ bool CMpu6050::GetXPositiveMotionDetected()
 
 bool CMpu6050::GetYNegativeMotionDetected()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_MOT_DETECT_STATUS,
@@ -1986,7 +2017,7 @@ bool CMpu6050::GetYNegativeMotionDetected()
 
 bool CMpu6050::GetYPositiveMotionDetected()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_MOT_DETECT_STATUS,
@@ -1999,7 +2030,7 @@ bool CMpu6050::GetYPositiveMotionDetected()
 
 bool CMpu6050::GetZNegativeMotionDetected()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_MOT_DETECT_STATUS,
@@ -2012,7 +2043,7 @@ bool CMpu6050::GetZNegativeMotionDetected()
 
 bool CMpu6050::GetZPositiveMotionDetected()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_MOT_DETECT_STATUS,
@@ -2025,7 +2056,7 @@ bool CMpu6050::GetZPositiveMotionDetected()
 
 bool CMpu6050::GetZeroMotionDetected()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_MOT_DETECT_STATUS,
@@ -2041,7 +2072,7 @@ void CMpu6050::SetSlaveOutputByte(uint8_t num, uint8_t data)
     if (num > 3)
         return;
 
-    esp32_i2c_write_byte
+    i2cBus->esp32_i2c_write_byte
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_SLV0_DO + num,
@@ -2051,7 +2082,7 @@ void CMpu6050::SetSlaveOutputByte(uint8_t num, uint8_t data)
 
 bool CMpu6050::GetExternalShadowDelayEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_DELAY_CTRL,
@@ -2064,7 +2095,7 @@ bool CMpu6050::GetExternalShadowDelayEnabled()
 
 void CMpu6050::SetExternalShadowDelayEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_DELAY_CTRL,
@@ -2078,7 +2109,7 @@ bool CMpu6050::GetSlaveDelayEnabled(uint8_t num)
     if (num > 4)
         return (0);
 
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_DELAY_CTRL,
@@ -2091,7 +2122,7 @@ bool CMpu6050::GetSlaveDelayEnabled(uint8_t num)
 
 void CMpu6050::SetSlaveDelayEnabled(uint8_t num, bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_I2C_MST_DELAY_CTRL,
@@ -2102,7 +2133,7 @@ void CMpu6050::SetSlaveDelayEnabled(uint8_t num, bool enabled)
 
 void CMpu6050::ResetGyroscopePath()
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_SIGNAL_PATH_RESET,
@@ -2113,7 +2144,7 @@ void CMpu6050::ResetGyroscopePath()
 
 void CMpu6050::ResetAccelerometerPath()
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_SIGNAL_PATH_RESET,
@@ -2124,7 +2155,7 @@ void CMpu6050::ResetAccelerometerPath()
 
 void CMpu6050::ResetTemperaturePath()
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_SIGNAL_PATH_RESET,
@@ -2135,7 +2166,7 @@ void CMpu6050::ResetTemperaturePath()
 
 uint8_t CMpu6050::GetAccelerometerPowerOnDelay()
 {
-    esp32_i2c_read_bits
+    i2cBus->esp32_i2c_read_bits
     (
         deviceAddress,
         MPU6050_REGISTER_MOT_DETECT_CTRL,
@@ -2149,7 +2180,7 @@ uint8_t CMpu6050::GetAccelerometerPowerOnDelay()
 
 void CMpu6050::SetAccelerometerPowerOnDelay(uint8_t delay)
 {
-    esp32_i2c_write_bits
+    i2cBus->esp32_i2c_write_bits
     (
         deviceAddress,
         MPU6050_REGISTER_MOT_DETECT_CTRL,
@@ -2161,7 +2192,7 @@ void CMpu6050::SetAccelerometerPowerOnDelay(uint8_t delay)
 
 uint8_t CMpu6050::GetFreefallDetectionCounterDecrement()
 {
-    esp32_i2c_read_bits
+    i2cBus->esp32_i2c_read_bits
     (
         deviceAddress,
         MPU6050_REGISTER_MOT_DETECT_CTRL,
@@ -2175,7 +2206,7 @@ uint8_t CMpu6050::GetFreefallDetectionCounterDecrement()
 
 void CMpu6050::SetFreefallDetectionCounterDecrement(uint8_t decrement)
 {
-    esp32_i2c_write_bits
+    i2cBus->esp32_i2c_write_bits
     (
         deviceAddress,
         MPU6050_REGISTER_MOT_DETECT_CTRL,
@@ -2187,7 +2218,7 @@ void CMpu6050::SetFreefallDetectionCounterDecrement(uint8_t decrement)
 
 uint8_t CMpu6050::GetMotionDetectionCounterDecrement()
 {
-    esp32_i2c_read_bits
+    i2cBus->esp32_i2c_read_bits
     (
         deviceAddress,
         MPU6050_REGISTER_MOT_DETECT_CTRL,
@@ -2201,7 +2232,7 @@ uint8_t CMpu6050::GetMotionDetectionCounterDecrement()
 
 void CMpu6050::SetMotionDetectionCounterDecrement(uint8_t decrement)
 {
-    esp32_i2c_write_bits
+    i2cBus->esp32_i2c_write_bits
     (
         deviceAddress,
         MPU6050_REGISTER_MOT_DETECT_CTRL,
@@ -2213,7 +2244,7 @@ void CMpu6050::SetMotionDetectionCounterDecrement(uint8_t decrement)
 
 bool CMpu6050::GetFifoEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_USER_CTRL,
@@ -2226,7 +2257,7 @@ bool CMpu6050::GetFifoEnabled()
 
 void CMpu6050::SetFifoEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_USER_CTRL,
@@ -2237,7 +2268,7 @@ void CMpu6050::SetFifoEnabled(bool enabled)
 
 bool CMpu6050::GetI2cMasterModeEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_USER_CTRL,
@@ -2250,7 +2281,7 @@ bool CMpu6050::GetI2cMasterModeEnabled()
 
 void CMpu6050::SetI2cMasterModeEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_USER_CTRL,
@@ -2261,7 +2292,7 @@ void CMpu6050::SetI2cMasterModeEnabled(bool enabled)
 
 void CMpu6050::SwitchSpieEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_USER_CTRL,
@@ -2272,7 +2303,7 @@ void CMpu6050::SwitchSpieEnabled(bool enabled)
 
 void CMpu6050::ResetFifo()
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_USER_CTRL,
@@ -2283,7 +2314,7 @@ void CMpu6050::ResetFifo()
 
 void CMpu6050::ResetSensors()
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_USER_CTRL,
@@ -2294,7 +2325,7 @@ void CMpu6050::ResetSensors()
 
 void CMpu6050::Reset()
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_1,
@@ -2305,7 +2336,7 @@ void CMpu6050::Reset()
 
 bool CMpu6050::GetSleepEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_1,
@@ -2318,7 +2349,7 @@ bool CMpu6050::GetSleepEnabled()
 
 void CMpu6050::SetSleepEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_1,
@@ -2329,7 +2360,7 @@ void CMpu6050::SetSleepEnabled(bool enabled)
 
 bool CMpu6050::GetWakeCycleEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_1,
@@ -2342,7 +2373,7 @@ bool CMpu6050::GetWakeCycleEnabled()
 
 void CMpu6050::SetWakeCycleEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_1,
@@ -2353,7 +2384,7 @@ void CMpu6050::SetWakeCycleEnabled(bool enabled)
 
 bool CMpu6050::GetTempSensorEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_1,
@@ -2366,7 +2397,7 @@ bool CMpu6050::GetTempSensorEnabled()
 
 void CMpu6050::SetTempSensorEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_1,
@@ -2377,7 +2408,7 @@ void CMpu6050::SetTempSensorEnabled(bool enabled)
 
 uint8_t CMpu6050::GetClockSource()
 {
-    esp32_i2c_read_bits
+    i2cBus->esp32_i2c_read_bits
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_1,
@@ -2391,7 +2422,7 @@ uint8_t CMpu6050::GetClockSource()
 
 void CMpu6050::SetClockSource(uint8_t source)
 {
-    esp32_i2c_write_bits
+    i2cBus->esp32_i2c_write_bits
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_1,
@@ -2403,7 +2434,7 @@ void CMpu6050::SetClockSource(uint8_t source)
 
 uint8_t CMpu6050::GetWakeFrequency()
 {
-    esp32_i2c_read_bits
+    i2cBus->esp32_i2c_read_bits
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_2,
@@ -2417,7 +2448,7 @@ uint8_t CMpu6050::GetWakeFrequency()
 
 void CMpu6050::SetWakeFrequency(uint8_t frequency)
 {
-    esp32_i2c_write_bits
+    i2cBus->esp32_i2c_write_bits
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_2,
@@ -2429,7 +2460,7 @@ void CMpu6050::SetWakeFrequency(uint8_t frequency)
 
 bool CMpu6050::GetStandbyXAccelEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_2,
@@ -2442,7 +2473,7 @@ bool CMpu6050::GetStandbyXAccelEnabled()
 
 void CMpu6050::SetStandbyXAccelEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_2,
@@ -2453,7 +2484,7 @@ void CMpu6050::SetStandbyXAccelEnabled(bool enabled)
 
 bool CMpu6050::GetStandbyYAccelEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_2,
@@ -2466,7 +2497,7 @@ bool CMpu6050::GetStandbyYAccelEnabled()
 
 void CMpu6050::SetStandbyYAccelEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_2,
@@ -2477,7 +2508,7 @@ void CMpu6050::SetStandbyYAccelEnabled(bool enabled)
 
 bool CMpu6050::GetStandbyZAccelEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_2,
@@ -2490,7 +2521,7 @@ bool CMpu6050::GetStandbyZAccelEnabled()
 
 void CMpu6050::SetStandbyZAccelEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_2,
@@ -2501,7 +2532,7 @@ void CMpu6050::SetStandbyZAccelEnabled(bool enabled)
 
 bool CMpu6050::GetStandbyXGyroEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_2,
@@ -2514,7 +2545,7 @@ bool CMpu6050::GetStandbyXGyroEnabled()
 
 void CMpu6050::SetStandbyXGyroEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_2,
@@ -2525,7 +2556,7 @@ void CMpu6050::SetStandbyXGyroEnabled(bool enabled)
 
 bool CMpu6050::GetStandbyYGyroEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_2,
@@ -2538,7 +2569,7 @@ bool CMpu6050::GetStandbyYGyroEnabled()
 
 void CMpu6050::SetStandbyYGyroEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_2,
@@ -2549,7 +2580,7 @@ void CMpu6050::SetStandbyYGyroEnabled(bool enabled)
 
 bool CMpu6050::GetStandbyZGyroEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_2,
@@ -2562,7 +2593,7 @@ bool CMpu6050::GetStandbyZGyroEnabled()
 
 void CMpu6050::SetStandbyZGyroEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_PWR_MGMT_2,
@@ -2573,7 +2604,7 @@ void CMpu6050::SetStandbyZGyroEnabled(bool enabled)
 
 uint16_t CMpu6050::GetFifoCount()
 {
-    esp32_i2c_read_bytes
+    i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
         MPU6050_REGISTER_FIFO_COUNTH,
@@ -2586,7 +2617,7 @@ uint16_t CMpu6050::GetFifoCount()
 
 uint8_t CMpu6050::GetFifoByte()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_FIFO_R_W,
@@ -2599,7 +2630,7 @@ uint8_t CMpu6050::GetFifoByte()
 void CMpu6050::GetFifoBytes(uint8_t *data, uint8_t length)
 {
     if (length > 0) {
-        esp32_i2c_read_bytes
+        i2cBus->esp32_i2c_read_bytes
         (
             deviceAddress,
             MPU6050_REGISTER_FIFO_R_W,
@@ -2613,7 +2644,7 @@ void CMpu6050::GetFifoBytes(uint8_t *data, uint8_t length)
 
 void CMpu6050::SetFifoByte(uint8_t data)
 {
-    esp32_i2c_write_byte
+    i2cBus->esp32_i2c_write_byte
     (
         deviceAddress,
         MPU6050_REGISTER_FIFO_R_W,
@@ -2623,7 +2654,7 @@ void CMpu6050::SetFifoByte(uint8_t data)
 
 uint8_t CMpu6050::GetDeviceId()
 {
-    esp32_i2c_read_bits
+    i2cBus->esp32_i2c_read_bits
     (
         deviceAddress,
         MPU6050_REGISTER_WHO_AM_I,
@@ -2637,7 +2668,7 @@ uint8_t CMpu6050::GetDeviceId()
 
 void CMpu6050::SetDeviceId(uint8_t id)
 {
-    esp32_i2c_write_bits
+    i2cBus->esp32_i2c_write_bits
     (
         deviceAddress,
         MPU6050_REGISTER_WHO_AM_I,
@@ -2649,7 +2680,7 @@ void CMpu6050::SetDeviceId(uint8_t id)
 
 uint8_t CMpu6050::GetOtpBankValid()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_XG_OFFS_TC,
@@ -2662,7 +2693,7 @@ uint8_t CMpu6050::GetOtpBankValid()
 
 void CMpu6050::SetOtpBankValid(int8_t enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_XG_OFFS_TC,
@@ -2673,7 +2704,7 @@ void CMpu6050::SetOtpBankValid(int8_t enabled)
 
 int8_t CMpu6050::GetXGyroOffsetTc()
 {
-    esp32_i2c_read_bits
+    i2cBus->esp32_i2c_read_bits
     (
         deviceAddress,
         MPU6050_REGISTER_XG_OFFS_TC,
@@ -2687,7 +2718,7 @@ int8_t CMpu6050::GetXGyroOffsetTc()
 
 void CMpu6050::SetXGyroOffsetTc(int8_t offset)
 {
-    esp32_i2c_write_bits
+    i2cBus->esp32_i2c_write_bits
     (
         deviceAddress,
         MPU6050_REGISTER_XG_OFFS_TC,
@@ -2699,7 +2730,7 @@ void CMpu6050::SetXGyroOffsetTc(int8_t offset)
 
 int8_t CMpu6050::GetYGyroOffsetTc()
 {
-    esp32_i2c_read_bits
+    i2cBus->esp32_i2c_read_bits
     (
         deviceAddress,
         MPU6050_REGISTER_YG_OFFS_TC,
@@ -2713,7 +2744,7 @@ int8_t CMpu6050::GetYGyroOffsetTc()
 
 void CMpu6050::SetYGyroOffsetTc(int8_t offset)
 {
-    esp32_i2c_write_bits
+    i2cBus->esp32_i2c_write_bits
     (
         deviceAddress,
         MPU6050_REGISTER_YG_OFFS_TC,
@@ -2725,7 +2756,7 @@ void CMpu6050::SetYGyroOffsetTc(int8_t offset)
 
 int8_t CMpu6050::GetZGyroOffsetTc()
 {
-    esp32_i2c_read_bits
+    i2cBus->esp32_i2c_read_bits
     (
         deviceAddress,
         MPU6050_REGISTER_ZG_OFFS_TC,
@@ -2739,7 +2770,7 @@ int8_t CMpu6050::GetZGyroOffsetTc()
 
 void CMpu6050::SetZGyroOffsetTc(int8_t offset)
 {
-    esp32_i2c_write_bits
+    i2cBus->esp32_i2c_write_bits
     (
         deviceAddress,
         MPU6050_REGISTER_ZG_OFFS_TC,
@@ -2751,7 +2782,7 @@ void CMpu6050::SetZGyroOffsetTc(int8_t offset)
 
 int8_t CMpu6050::GetXFineGain()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_X_FINE_GAIN,
@@ -2763,7 +2794,7 @@ int8_t CMpu6050::GetXFineGain()
 
 void CMpu6050::SetXFineGain(int8_t gain)
 {
-    esp32_i2c_write_byte
+    i2cBus->esp32_i2c_write_byte
     (
         deviceAddress,
         MPU6050_REGISTER_X_FINE_GAIN,
@@ -2773,7 +2804,7 @@ void CMpu6050::SetXFineGain(int8_t gain)
 
 int8_t CMpu6050::GetYFineGain()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_Y_FINE_GAIN,
@@ -2785,7 +2816,7 @@ int8_t CMpu6050::GetYFineGain()
 
 void CMpu6050::SetYFineGain(int8_t gain)
 {
-    esp32_i2c_write_byte
+    i2cBus->esp32_i2c_write_byte
     (
         deviceAddress,
         MPU6050_REGISTER_Y_FINE_GAIN,
@@ -2795,7 +2826,7 @@ void CMpu6050::SetYFineGain(int8_t gain)
 
 int8_t CMpu6050::GetZFineGain()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_Z_FINE_GAIN,
@@ -2807,7 +2838,7 @@ int8_t CMpu6050::GetZFineGain()
 
 void CMpu6050::SetZFineGain(int8_t gain)
 {
-    esp32_i2c_write_byte
+    i2cBus->esp32_i2c_write_byte
     (
         deviceAddress,
         MPU6050_REGISTER_Z_FINE_GAIN,
@@ -2817,7 +2848,7 @@ void CMpu6050::SetZFineGain(int8_t gain)
 
 int16_t CMpu6050::GetXAccelOffset()
 {
-    esp32_i2c_read_bytes
+    i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
         MPU6050_REGISTER_XA_OFFS_H,
@@ -2830,7 +2861,7 @@ int16_t CMpu6050::GetXAccelOffset()
 
 void CMpu6050::SetXAccelOffset(int16_t offset)
 {
-    esp32_i2c_write_word
+    i2cBus->esp32_i2c_write_word
     (
         deviceAddress,
         MPU6050_REGISTER_XA_OFFS_H,
@@ -2840,7 +2871,7 @@ void CMpu6050::SetXAccelOffset(int16_t offset)
 
 int16_t CMpu6050::GetYAccelOffset()
 {
-    esp32_i2c_read_bytes
+    i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
         MPU6050_REGISTER_YA_OFFS_H,
@@ -2853,7 +2884,7 @@ int16_t CMpu6050::GetYAccelOffset()
 
 void CMpu6050::SetYAccelOffset(int16_t offset)
 {
-    esp32_i2c_write_word
+    i2cBus->esp32_i2c_write_word
     (
         deviceAddress,
         MPU6050_REGISTER_YA_OFFS_H,
@@ -2863,7 +2894,7 @@ void CMpu6050::SetYAccelOffset(int16_t offset)
 
 int16_t CMpu6050::GetZAccelOffset()
 {
-    esp32_i2c_read_bytes
+    i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
         MPU6050_REGISTER_ZA_OFFS_H,
@@ -2876,7 +2907,7 @@ int16_t CMpu6050::GetZAccelOffset()
 
 void CMpu6050::SetZAccelOffset(int16_t offset)
 {
-    esp32_i2c_write_word
+    i2cBus->esp32_i2c_write_word
     (
         deviceAddress,
         MPU6050_REGISTER_ZA_OFFS_H,
@@ -2886,7 +2917,7 @@ void CMpu6050::SetZAccelOffset(int16_t offset)
 
 int16_t CMpu6050::GetXGyroOffset()
 {
-    esp32_i2c_read_bytes
+    i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
         MPU6050_REGISTER_XG_OFFS_USRH,
@@ -2899,7 +2930,7 @@ int16_t CMpu6050::GetXGyroOffset()
 
 void CMpu6050::SetXGyroOffset(int16_t offset)
 {
-    esp32_i2c_write_word
+    i2cBus->esp32_i2c_write_word
     (
         deviceAddress,
         MPU6050_REGISTER_XG_OFFS_USRH,
@@ -2909,7 +2940,7 @@ void CMpu6050::SetXGyroOffset(int16_t offset)
 
 int16_t CMpu6050::GetYGyroOffset()
 {
-    esp32_i2c_read_bytes
+    i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
         MPU6050_REGISTER_YG_OFFS_USRH,
@@ -2922,7 +2953,7 @@ int16_t CMpu6050::GetYGyroOffset()
 
 void CMpu6050::SetYGyroOffset(int16_t offset)
 {
-    esp32_i2c_write_word
+    i2cBus->esp32_i2c_write_word
     (
         deviceAddress,
         MPU6050_REGISTER_YG_OFFS_USRH,
@@ -2932,7 +2963,7 @@ void CMpu6050::SetYGyroOffset(int16_t offset)
 
 int16_t CMpu6050::GetZGyroOffset()
 {
-    esp32_i2c_read_bytes
+    i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
         MPU6050_REGISTER_ZG_OFFS_USRH,
@@ -2945,7 +2976,7 @@ int16_t CMpu6050::GetZGyroOffset()
 
 void CMpu6050::SetZGyroOffset(int16_t offset)
 {
-    esp32_i2c_write_word
+    i2cBus->esp32_i2c_write_word
     (
         deviceAddress,
         MPU6050_REGISTER_ZG_OFFS_USRH,
@@ -2955,7 +2986,7 @@ void CMpu6050::SetZGyroOffset(int16_t offset)
 
 bool CMpu6050::GetIntPllReadyEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_ENABLE,
@@ -2968,7 +2999,7 @@ bool CMpu6050::GetIntPllReadyEnabled()
 
 void CMpu6050::SetIntPllReadyEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_ENABLE,
@@ -2979,7 +3010,7 @@ void CMpu6050::SetIntPllReadyEnabled(bool enabled)
 
 bool CMpu6050::GetIntDmpEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_ENABLE,
@@ -2992,7 +3023,7 @@ bool CMpu6050::GetIntDmpEnabled()
 
 void CMpu6050::SetIntDmpEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_ENABLE,
@@ -3003,7 +3034,7 @@ void CMpu6050::SetIntDmpEnabled(bool enabled)
 
 bool CMpu6050::GetDmpInt5Status()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_DMP_INT_STATUS,
@@ -3016,7 +3047,7 @@ bool CMpu6050::GetDmpInt5Status()
 
 bool CMpu6050::GetDmpInt4Status()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_DMP_INT_STATUS,
@@ -3029,7 +3060,7 @@ bool CMpu6050::GetDmpInt4Status()
 
 bool CMpu6050::GetDmpInt3Status()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_DMP_INT_STATUS,
@@ -3042,7 +3073,7 @@ bool CMpu6050::GetDmpInt3Status()
 
 bool CMpu6050::GetDmpInt2Status()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_DMP_INT_STATUS,
@@ -3055,7 +3086,7 @@ bool CMpu6050::GetDmpInt2Status()
 
 bool CMpu6050::GetDmpInt1Status()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_DMP_INT_STATUS,
@@ -3068,7 +3099,7 @@ bool CMpu6050::GetDmpInt1Status()
 
 bool CMpu6050::GetDmpInt0Status()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_DMP_INT_STATUS,
@@ -3081,7 +3112,7 @@ bool CMpu6050::GetDmpInt0Status()
 
 bool CMpu6050::GetIntPplReadyStatus()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_STATUS,
@@ -3094,7 +3125,7 @@ bool CMpu6050::GetIntPplReadyStatus()
 
 bool CMpu6050::GetIntDmpStatus()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_INT_STATUS,
@@ -3107,7 +3138,7 @@ bool CMpu6050::GetIntDmpStatus()
 
 bool CMpu6050::GetDmpEnabled()
 {
-    esp32_i2c_read_bit
+    i2cBus->esp32_i2c_read_bit
     (
         deviceAddress,
         MPU6050_REGISTER_USER_CTRL,
@@ -3120,7 +3151,7 @@ bool CMpu6050::GetDmpEnabled()
 
 void CMpu6050::SetDmpEnabled(bool enabled)
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_USER_CTRL,
@@ -3131,7 +3162,7 @@ void CMpu6050::SetDmpEnabled(bool enabled)
 
 void CMpu6050::ResetDmp()
 {
-    esp32_i2c_write_bit
+    i2cBus->esp32_i2c_write_bit
     (
         deviceAddress,
         MPU6050_REGISTER_USER_CTRL,
@@ -3142,7 +3173,7 @@ void CMpu6050::ResetDmp()
 
 uint8_t CMpu6050::GetDmpConfig1()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_DMP_CFG_1,
@@ -3154,7 +3185,7 @@ uint8_t CMpu6050::GetDmpConfig1()
 
 void CMpu6050::SetDmpConfig1(uint8_t config)
 {
-    esp32_i2c_write_byte
+    i2cBus->esp32_i2c_write_byte
     (
         deviceAddress,
         MPU6050_REGISTER_DMP_CFG_1,
@@ -3164,7 +3195,7 @@ void CMpu6050::SetDmpConfig1(uint8_t config)
 
 uint8_t CMpu6050::GetDmpConfig2()
 {
-    esp32_i2c_read_byte
+    i2cBus->esp32_i2c_read_byte
     (
         deviceAddress,
         MPU6050_REGISTER_DMP_CFG_2,
@@ -3176,7 +3207,7 @@ uint8_t CMpu6050::GetDmpConfig2()
 
 void CMpu6050::SetDmpConfig2(uint8_t config)
 {
-    esp32_i2c_write_byte
+    i2cBus->esp32_i2c_write_byte
     (
         deviceAddress,
         MPU6050_REGISTER_DMP_CFG_2,

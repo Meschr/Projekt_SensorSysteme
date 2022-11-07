@@ -19,7 +19,7 @@ CDataLogStateMachine::CDataLogStateMachine(void)
     mpFileStorage = new CSdmmc();
     const unsigned int inc2Mm = 100;
     mpPositionMeasurement = new CLs7366r(inc2Mm);
-    mCMpu6050 = new CMpu6050(MPU6050_ADDRESS_LOW);
+    mCMpu6050 = new CMpu6050(MPU6050_ADDRESS_LOW, ACCEL_FULL_SCALE_RANGE_4, GYRO_FULL_SCALE_RANGE_250);
 }
 
 void CDataLogStateMachine::CreateInstance(void)
@@ -129,6 +129,7 @@ void CDataLogStateMachine::Send()
             logData.index++;
             if (mpPositionMeasurement)  logData.pos                = mpPositionMeasurement->GetPositionMm();
             //if (mpAccelerometer)        logData.acceleration_data  = mpAccelerometer->GetAcceleration();
+            mCMpu6050->GetAndConvertAccelerationX();
 
             if(mMarker.load())
             {

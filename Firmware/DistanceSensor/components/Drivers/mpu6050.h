@@ -2,6 +2,7 @@
 #define MPU6050_H
 
 #include <math.h>
+#include "esp_log.h"
 #include "esp32_i2c_rw.h"
 #include "Mpu6050Registers.h"
 #include "IAccelerometer.h"
@@ -20,7 +21,7 @@ enum EGyroFullScaleRange
     GYRO_FULL_SCALE_RANGE_500 = 0x01,
     GYRO_FULL_SCALE_RANGE_1000 = 0x02,
     GYRO_FULL_SCALE_RANGE_2000 = 0x03
-}
+};
 
 //Full scale accelerometer range
 enum EAccelFullScaleRange
@@ -35,14 +36,15 @@ enum EAccelFullScaleRange
 class CMpu6050 : public IAccelerometer
 {
 private:
+    CI2cBusHandler* i2cBus;
     uint8_t deviceAddress;
     const char *TAG_MPU6050 = "MPU6050";
     EAccelFullScaleRange currentAccelRange;
     EGyroFullScaleRange currentGyroRange;
 
 public:
-    CMpu6050(EMpu6050_Address address);
-    ~CMpu6050(void) {}
+    CMpu6050(EMpu6050_Address address, EAccelFullScaleRange accelRange, EGyroFullScaleRange gyroRange);
+    ~CMpu6050(void);
 
     typedef struct _mpu6050_acceleration_t
     {
@@ -1476,6 +1478,14 @@ public:
      * @return X-axis acceleration measurement in 16-bit 2's complement format.
      */
     int16_t GetAccelerationX();
+
+
+     /**
+     * @brief Get X-axis accelerometer reading and convert it to G's
+     *
+     * @return X-axis acceleration measurement as double
+     */
+    double GetAndConvertAccelerationX();
 
     /**
      * @brief Get Y-axis accelerometer reading.
