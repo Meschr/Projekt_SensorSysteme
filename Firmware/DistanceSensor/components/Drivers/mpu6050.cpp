@@ -24,8 +24,10 @@ void CMpu6050::Init()
     init_i2c_driver();
 
     SetClockSource(MPU6050_CLOCK_PLL_XGYRO);
-    SetFullScaleGyroRange(MPU6050_GYRO_FULL_SCALE_RANGE_250);
-    SetFullScaleAccelRange(MPU6050_ACCEL_FULL_SCALE_RANGE_2);
+    currentGyroRange = GYRO_FULL_SCALE_RANGE_250;
+    SetFullScaleGyroRange(currentGyroRange);
+    currentAccelRange = ACCEL_FULL_SCALE_RANGE_2;
+    SetFullScaleAccelRange(currentAccelRange);
     SetSleepEnabled(0);
 }
 
@@ -3264,8 +3266,8 @@ void CMpu6050::Calibrate(float *accel_bias_res, float *gyro_bias_res)
     // Configure MPU6050 gyro and accelerometer for bias calculation:
     SetOutputRate(0x00); // Set sample rate to 1 kHz.
     SetDlpfMode(MPU6050_DLPF_BW_188);
-    SetFullScaleAccelRange(MPU6050_ACCEL_FULL_SCALE_RANGE_2);
-    SetFullScaleGyroRange(MPU6050_GYRO_FULL_SCALE_RANGE_250);
+    SetFullScaleAccelRange(ACCEL_FULL_SCALE_RANGE_2);
+    SetFullScaleGyroRange(GYRO_FULL_SCALE_RANGE_250);
  
     /**
      * Configure FIFO to capture data for bias calculation.
@@ -3408,8 +3410,8 @@ void CMpu6050::SelfTest(float *destination)
     SetAccelXSelfTest(true);
     SetAccelYSelfTest(true);
     SetAccelZSelfTest(true);
-    SetFullScaleAccelRange(MPU6050_ACCEL_FULL_SCALE_RANGE_8);
-    SetFullScaleGyroRange(MPU6050_GYRO_FULL_SCALE_RANGE_250);
+    SetFullScaleAccelRange(ACCEL_FULL_SCALE_RANGE_8);
+    SetFullScaleGyroRange(GYRO_FULL_SCALE_RANGE_250);
 
     self_test[0] = GetAccelXSelfTestFactoryTrim();
     self_test[1] = GetAccelYSelfTestFactoryTrim();

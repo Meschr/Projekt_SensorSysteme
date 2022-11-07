@@ -141,22 +141,6 @@
 #define MPU6050_DHPF_HOLD                   (0x07)
 
 /**
- * Full scale gyroscope range:
- */
-#define MPU6050_GYRO_FULL_SCALE_RANGE_250   (0x00)
-#define MPU6050_GYRO_FULL_SCALE_RANGE_500   (0x01)
-#define MPU6050_GYRO_FULL_SCALE_RANGE_1000  (0x02)
-#define MPU6050_GYRO_FULL_SCALE_RANGE_2000  (0x03)
-
-/**
- * Full scale accelerometer range:
- */
-#define MPU6050_ACCEL_FULL_SCALE_RANGE_2    (0x00)
-#define MPU6050_ACCEL_FULL_SCALE_RANGE_4    (0x01)
-#define MPU6050_ACCEL_FULL_SCALE_RANGE_8    (0x02)
-#define MPU6050_ACCEL_FULL_SCALE_RANGE_16   (0x03)
-
-/**
  * Interrupt values:
  */
 #define MPU6050_INTMODE_ACTIVEHIGH          (0x00)

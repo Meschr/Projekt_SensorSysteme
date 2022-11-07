@@ -13,11 +13,32 @@ enum EMpu6050_Address
     MPU6050_ADDRESS_HIGH = 0x69 // Address pin high (VCC).
 };  
 
+//Full scale gyroscope range
+enum EGyroFullScaleRange
+{
+    GYRO_FULL_SCALE_RANGE_250 = 0x00,
+    GYRO_FULL_SCALE_RANGE_500 = 0x01,
+    GYRO_FULL_SCALE_RANGE_1000 = 0x02,
+    GYRO_FULL_SCALE_RANGE_2000 = 0x03
+}
+
+//Full scale accelerometer range
+enum EAccelFullScaleRange
+{
+    ACCEL_FULL_SCALE_RANGE_2   = 0x00,      // Accelerometerrange 2G
+    ACCEL_FULL_SCALE_RANGE_4   = 0x01,      // Accelerometerrange 4G
+    ACCEL_FULL_SCALE_RANGE_8   = 0x02,      // Accelerometerrange 8G
+    ACCEL_FULL_SCALE_RANGE_16  = 0x03       // Accelerometerrange 16G
+};
+
+
 class CMpu6050 : public IAccelerometer
 {
 private:
     uint8_t deviceAddress;
     const char *TAG_MPU6050 = "MPU6050";
+    EAccelFullScaleRange currentAccelRange;
+    EGyroFullScaleRange currentGyroRange;
 
 public:
     CMpu6050(EMpu6050_Address address);
