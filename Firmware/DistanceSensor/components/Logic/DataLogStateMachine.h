@@ -10,7 +10,7 @@
 #include "IFileStorage.h"
 #include "IPositionMeasurement.h"
 //#include "IAccelerometer.h"
-#include "Mpu6050.h"
+#include "mpu6050.h"
 
 class CDataLogStateMachine
 {

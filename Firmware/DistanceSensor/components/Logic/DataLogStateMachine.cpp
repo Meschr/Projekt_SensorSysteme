@@ -6,7 +6,7 @@
 #include "esp_vfs_fat.h"
 
 #include "LS7366R.h"
-#include "Mpu6050.h"
+#include "mpu6050.h"
 #include "Sdmmc.h"
 
 CDataLogStateMachine* CDataLogStateMachine::mspDataLogStateMachine = NULL;
