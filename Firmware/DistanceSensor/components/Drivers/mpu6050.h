@@ -1495,11 +1495,25 @@ public:
     int16_t GetAccelerationY();
 
     /**
+     * @brief Get X-axis accelerometer reading and convert it to G's
+     *
+     * @return X-axis acceleration measurement as double
+     */
+    double GetAndConvertAccelerationY();
+
+    /**
      * @brief Get Z-axis accelerometer reading.
      *
      * @return Z-axis acceleration measurement in 16-bit 2's complement format.
      */
     int16_t GetAccelerationZ();
+
+    /**
+     * @brief Get X-axis accelerometer reading and convert it to G's
+     *
+     * @return X-axis acceleration measurement as double
+     */
+    double GetAndConvertAccelerationZ();
 
     /**
      * @brief Get current internal temperature.

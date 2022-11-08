@@ -1790,7 +1790,7 @@ int GetIntValueFromAccelRange(EAccelFullScaleRange range)
         case ACCEL_FULL_SCALE_RANGE_16:
             return 2048;
         default:
-            return 0; //todo handle this case
+            return 0; //TODO handle this case
     }
 }
 
@@ -1800,6 +1800,22 @@ double CMpu6050::GetAndConvertAccelerationX()
     double accelXInG = rawReading/static_cast<double>(GetIntValueFromAccelRange(currentAccelRange));
     ESP_LOGI(TAG_MPU6050, "Acceleration in X: %lf G",accelXInG);
     return accelXInG;        
+}
+
+double CMpu6050::GetAndConvertAccelerationY()
+{
+    auto rawReading = CMpu6050::GetAccelerationY();
+    double accelYIng = rawReading/static_cast<double>(GetIntValueFromAccelRange(currentAccelRange));
+    ESP_LOGI(TAG_MPU6050, "Acceleration in Y: %lf G", accelYIng);
+    return accelYIng;
+}
+
+double CMpu6050::GetAndConvertAccelerationZ()
+{
+    auto rawReading = CMpu6050::GetAccelerationZ();
+    double accelZIng = rawReading/static_cast<double>(GetIntValueFromAccelRange(currentAccelRange));
+    ESP_LOGI(TAG_MPU6050, "Acceleration in Z: %lf G", accelZIng);
+    return accelZIng;
 }
 
 int16_t CMpu6050::GetAccelerationY()
