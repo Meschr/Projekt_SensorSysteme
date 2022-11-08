@@ -10,15 +10,24 @@
 
 #include "tasks.h"
 #include "DataLogStateMachine.h"
+#include "LogInfoHandler.h"
 
 static const char* TAG = "tFast";
+
+int ConvertSamplingFrequencyToSamplingTimeInMs(int frequency)
+{
+    return (int) 1000/frequency;
+}
+
 
 void tFast(void* pvParameters)
 {
     ESP_LOGI(TAG, "Task started");
     // Initialise the xLastWakeTime variable with the current time.
     TickType_t xLastWakeTime = xTaskGetTickCount();
-    const TickType_t xFrequency = 1000 / portTICK_PERIOD_MS; // 1s 
+    const TickType_t xFrequency = ConvertSamplingFrequencyToSamplingTimeInMs(SamplingFrequency) / portTICK_PERIOD_MS; 
+    
+    CLogInfoHandler::GetInstance()->mLogInfo.SamplingFreq = SamplingFrequency;
 
     flagrestart-=restart_fast;
     while (flagrestart != 0) {}

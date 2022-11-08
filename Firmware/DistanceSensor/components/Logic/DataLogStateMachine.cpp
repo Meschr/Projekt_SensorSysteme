@@ -8,6 +8,7 @@
 #include "LS7366R.h"
 #include "mpu6050.h"
 #include "Sdmmc.h"
+#include "LogInfoHandler.h"
 
 CDataLogStateMachine* CDataLogStateMachine::mspDataLogStateMachine = NULL;
 static const char* TAG = "LOG";
@@ -19,7 +20,7 @@ CDataLogStateMachine::CDataLogStateMachine(void)
     mpFileStorage = new CSdmmc();
     const unsigned int inc2Mm = 100;
     mpPositionMeasurement = new CLs7366r(inc2Mm);
-    mCMpu6050 = new CMpu6050(MPU6050_ADDRESS_LOW, ACCEL_FULL_SCALE_RANGE_4, GYRO_FULL_SCALE_RANGE_250);
+    //mCMpu6050 = new CMpu6050(MPU6050_ADDRESS_LOW, ACCEL_FULL_SCALE_RANGE_4, GYRO_FULL_SCALE_RANGE_250);
 }
 
 void CDataLogStateMachine::CreateInstance(void)
@@ -51,11 +52,11 @@ void CDataLogStateMachine::Init()
     if (mpFileStorage)          mpFileStorage->Init();
     if (mpPositionMeasurement)  mpPositionMeasurement->Init();
     //if (mpAccelerometer)        mpAccelerometer->Init();
-    if(mCMpu6050)               mCMpu6050->Init();
-    auto init_success = mCMpu6050->TestConnection() ? "mpu6050 initialized successfully!" : "mpu6050 test connection failed!";
-    ESP_LOGI(TAG, "%s",init_success);
-    auto temp = mCMpu6050->GetTemperature();
-    ESP_LOGI(TAG, "Temperature: %f °C",temp);
+    //if(mCMpu6050)               mCMpu6050->Init();
+    //auto init_success = mCMpu6050->TestConnection() ? "mpu6050 initialized successfully!" : "mpu6050 test connection failed!";
+    //ESP_LOGI(TAG, "%s",init_success);
+    //auto temp = mCMpu6050->GetAndConvertTemperatureToCelsius();
+    //ESP_LOGI(TAG, "Temperature: %f °C",temp);
 }
 
 void CDataLogStateMachine::Receive()
@@ -66,6 +67,9 @@ void CDataLogStateMachine::Receive()
         {
             if (mpFileStorage->CreateFile())
             {
+                //LogInfos am File Anfang anhängen
+                mpFileStorage->PutString(CLogInfoHandler::GetInstance()->GetLogInfo());
+
                 // File wurde erstellt -> beginne zu Loggen
                 mLogState.store(LogStateLogging);
             }
@@ -84,7 +88,7 @@ void CDataLogStateMachine::Receive()
 
             while(xQueueReceive(mQueueHdl, &logData, (TickType_t)0))
             {
-                sprintf(newElement, "%7.3f,%1d,%11d,%11d,%11d,%10u\n"
+                sprintf(newElement, "%7.3f,%1d,%11f,%11f,%11f,%10u\n"
                     ,logData.pos
                     ,logData.marker
                     ,logData.acceleration_data.acceleration_x
@@ -129,7 +133,7 @@ void CDataLogStateMachine::Send()
             logData.index++;
             if (mpPositionMeasurement)  logData.pos                = mpPositionMeasurement->GetPositionMm();
             //if (mpAccelerometer)        logData.acceleration_data  = mpAccelerometer->GetAcceleration();
-            mCMpu6050->GetAndConvertAccelerationX();
+            //mCMpu6050->GetAndConvertAccelerationX();
 
             if(mMarker.load())
             {

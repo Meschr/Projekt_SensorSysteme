@@ -3,9 +3,9 @@
 
 struct SAccelerationData
 {
-    int acceleration_x = 0;
-    int acceleration_y = 0;
-    int acceleration_z = 0;
+    float acceleration_x = 0;
+    float acceleration_y = 0;
+    float acceleration_z = 0;
 };
 
 struct SRotationData

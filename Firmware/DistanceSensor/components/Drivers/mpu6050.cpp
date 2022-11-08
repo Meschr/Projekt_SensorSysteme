@@ -1853,7 +1853,7 @@ int16_t CMpu6050::GetTemperature()
 
 float CMpu6050::GetAndConvertTemperatureToCelsius()
 {
-    return (GetTemperature/340)+36.53;
+    return (GetTemperature()/340)+36.53;
 }
 
 SRotationData CMpu6050::GetRotation()
