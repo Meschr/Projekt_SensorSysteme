@@ -1802,22 +1802,6 @@ double CMpu6050::GetAndConvertAccelerationX()
     return accelXInG;        
 }
 
-double CMpu6050::GetAndConvertAccelerationY()
-{
-    auto rawReading = CMpu6050::GetAccelerationY();
-    double accelYIng = rawReading/static_cast<double>(GetIntValueFromAccelRange(currentAccelRange));
-    ESP_LOGI(TAG_MPU6050, "Acceleration in Y: %lf G", accelYIng);
-    return accelYIng;
-}
-
-double CMpu6050::GetAndConvertAccelerationZ()
-{
-    auto rawReading = CMpu6050::GetAccelerationZ();
-    double accelZIng = rawReading/static_cast<double>(GetIntValueFromAccelRange(currentAccelRange));
-    ESP_LOGI(TAG_MPU6050, "Acceleration in Z: %lf G", accelZIng);
-    return accelZIng;
-}
-
 int16_t CMpu6050::GetAccelerationY()
 {
     i2cBus->esp32_i2c_read_bytes
@@ -1829,6 +1813,14 @@ int16_t CMpu6050::GetAccelerationY()
     );
 
     return ((((int16_t) buffer[0]) << 8) | buffer[1]);
+}
+
+double CMpu6050::GetAndConvertAccelerationY()
+{
+    auto rawReading = CMpu6050::GetAccelerationY();
+    double accelYIng = rawReading/static_cast<double>(GetIntValueFromAccelRange(currentAccelRange));
+    ESP_LOGI(TAG_MPU6050, "Acceleration in Y: %lf G", accelYIng);
+    return accelYIng;
 }
 
 int16_t CMpu6050::GetAccelerationZ()
@@ -1844,17 +1836,24 @@ int16_t CMpu6050::GetAccelerationZ()
     return ((((int16_t) buffer[0]) << 8) | buffer[1]);
 }
 
-float CMpu6050::GetTemperature()
+double CMpu6050::GetAndConvertAccelerationZ()
 {
-    i2cBus->esp32_i2c_read_bytes
-    (
-        deviceAddress,
-        MPU6050_REGISTER_TEMP_OUT_H,
-        2,
-        buffer
-    );
-    int16_t sensorReading = ((((int16_t) buffer[0]) << 8) | buffer[1]);
-    return (sensorReading/340)+36.53; //datasheet
+    auto rawReading = CMpu6050::GetAccelerationZ();
+    double accelZIng = rawReading/static_cast<double>(GetIntValueFromAccelRange(currentAccelRange));
+    ESP_LOGI(TAG_MPU6050, "Acceleration in Z: %lf G", accelZIng);
+    return accelZIng;
+}
+
+int16_t CMpu6050::GetTemperature()
+{
+    i2cBus->esp32_i2c_read_bytes(deviceAddress, MPU6050_REGISTER_TEMP_OUT_H, 2, buffer);
+    
+    return ((((int16_t) buffer[0]) << 8) | buffer[1]);
+}
+
+float CMpu6050::GetAndConvertTemperatureToCelsius()
+{
+    return (GetTemperature/340)+36.53;
 }
 
 SRotationData CMpu6050::GetRotation()

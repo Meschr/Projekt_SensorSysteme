@@ -1495,9 +1495,9 @@ public:
     int16_t GetAccelerationY();
 
     /**
-     * @brief Get X-axis accelerometer reading and convert it to G's
+     * @brief Get Y-axis accelerometer reading and convert it to G's
      *
-     * @return X-axis acceleration measurement as double
+     * @return Y-axis acceleration measurement as double
      */
     double GetAndConvertAccelerationY();
 
@@ -1509,18 +1509,25 @@ public:
     int16_t GetAccelerationZ();
 
     /**
-     * @brief Get X-axis accelerometer reading and convert it to G's
+     * @brief Get Z-axis accelerometer reading and convert it to G's
      *
-     * @return X-axis acceleration measurement as double
+     * @return Z-axis acceleration measurement as double
      */
     double GetAndConvertAccelerationZ();
 
+   /**
+    * @brief Get current internal temperature.
+    *
+    * @return Temperature reading in 16-bit 2's complement format.
+    */
+    int16_t GetTemperature();
+
     /**
-     * @brief Get current internal temperature.
+     * @brief Get current internal temperature and convert it to celsius
      *
-     * @return Temperature reading is in 16bit 2s complement format and gets converted to Celsius.
+     * @return Temperature reading is in 16bit 2s complement format and gets converted to Celsius according to datasheet.
      */
-    float GetTemperature();
+    float GetAndConvertTemperatureToCelsius();
 
     /**
      * @brief Get 3-axis gyroscope readings.
