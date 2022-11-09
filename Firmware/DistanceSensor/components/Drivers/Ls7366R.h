@@ -7,14 +7,17 @@
 class CLs7366r : public IIncrementalEncoder
 {
 public:
-    CLs7366r(unsigned int in_incPerMm) : IIncrementalEncoder(in_incPerMm) {}
+    CLs7366r(unsigned int IncPerRev, unsigned int QuadratureMode) : IIncrementalEncoder(IncPerRev,QuadratureMode) {}
     ~CLs7366r(void) {}
 
     // Initialisierung des Chips
     virtual void Init(void);
 
     // Auslesen der gezaehlten Inkremente
-    virtual unsigned int ReadCnt(void);
+    virtual int ReadCnt(void);
+
+    //Counter mit Inkremente nullen
+    virtual void ResetCnt(void);
 
 private:
     spi_device_handle_t mSpiDeviceHdl;

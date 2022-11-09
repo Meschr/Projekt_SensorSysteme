@@ -18,8 +18,7 @@ CDataLogStateMachine::CDataLogStateMachine(void)
 {
     mQueueHdl = xQueueCreate(100, sizeof(SLogData));
     mpFileStorage = new CSdmmc();
-    const unsigned int inc2Mm = 100;
-    mpPositionMeasurement = new CLs7366r(inc2Mm);
+    mpPositionMeasurement = new CLs7366r(500,4);
     //mCMpu6050 = new CMpu6050(MPU6050_ADDRESS_LOW, ACCEL_FULL_SCALE_RANGE_4, GYRO_FULL_SCALE_RANGE_250);
 }
 
@@ -69,6 +68,9 @@ void CDataLogStateMachine::Receive()
             {
                 //LogInfos am File Anfang anhängen
                 mpFileStorage->PutString(CLogInfoHandler::GetInstance()->GetLogInfo());
+
+                //Wegsensor nullen
+                mpPositionMeasurement->ResetPosition();
 
                 // File wurde erstellt -> beginne zu Loggen
                 mLogState.store(LogStateLogging);

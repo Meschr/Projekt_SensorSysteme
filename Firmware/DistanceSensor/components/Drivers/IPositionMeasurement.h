@@ -13,6 +13,8 @@ public:
 
     // Aktueller Weg in mm
     virtual double GetPositionMm(void) = 0;
+
+    virtual void ResetPosition(void);
 };
 
 #endif // #ifndef _IPOSITIONMEASUREMENT_hf

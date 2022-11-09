@@ -7,20 +7,29 @@
 class IIncrementalEncoder : public IPositionMeasurement
 {
 public:
-    IIncrementalEncoder(unsigned int in_incPerMm) : IPositionMeasurement(), mIncPerMm(in_incPerMm) {}
+    IIncrementalEncoder(unsigned int IncPerRev, unsigned int QuadratureMode) : IPositionMeasurement(), mIncPerRev(IncPerRev), mQuadratureMode(QuadratureMode) 
+    {
+        mIncPerMm = mIncPerRev*mQuadratureMode;
+    }
     ~IIncrementalEncoder(void) {}
 
     // Initialisierung
     virtual void Init(void) = 0;
     
     // Aktueller Weg in mm
-    virtual double GetPositionMm(void) { return (mIncPerMm > 0 ? ReadCnt() / mIncPerMm : 0); }
+    virtual double GetPositionMm(void) { return (double)ReadCnt() * (40.0 / (double)mIncPerMm); } //TODO refactor this (40mm RollenUmfang)
+
+    virtual void ResetPosition(void){ ResetCnt(); }  
 
 protected:
     // Auslesen der gezaehlten Inkremente
-    virtual unsigned int ReadCnt(void);
+    virtual int ReadCnt(void);
 
-    unsigned int mIncPerMm; // Inkremente pro mm
+    virtual void ResetCnt(void);
+
+    unsigned int mIncPerRev;      //Inkremente pro Umdrehung
+    unsigned int mQuadratureMode; //Quadraturmodus (1-4fach)
+    unsigned int mIncPerMm;       //Inkremente pro 
 };
 
 #endif // #ifndef _IINCREMENTALENCODER_hf
