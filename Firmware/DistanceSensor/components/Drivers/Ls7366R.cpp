@@ -135,7 +135,7 @@ int CLs7366r::ReadCnt()
 
 void CLs7366r::ResetCnt(void)
 {
-    //FIXTHIS not working
+    //FIXME not working
     spi_transaction_t cmd;
     cmd.length = 8;
     cmd.cmd = CLR_CNTR;

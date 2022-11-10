@@ -19,7 +19,7 @@ CDataLogStateMachine::CDataLogStateMachine(void)
     mQueueHdl = xQueueCreate(100, sizeof(SLogData));
     mpFileStorage = new CSdmmc();
     mpPositionMeasurement = new CLs7366r(500,4);
-    //mCMpu6050 = new CMpu6050(MPU6050_ADDRESS_LOW, ACCEL_FULL_SCALE_RANGE_4, GYRO_FULL_SCALE_RANGE_250);
+    mCMpu6050 = new CMpu6050(MPU6050_ADDRESS_LOW, ACCEL_FULL_SCALE_RANGE_4, GYRO_FULL_SCALE_RANGE_250);
 }
 
 void CDataLogStateMachine::CreateInstance(void)
@@ -50,12 +50,9 @@ void CDataLogStateMachine::Init()
 {
     if (mpFileStorage)          mpFileStorage->Init();
     if (mpPositionMeasurement)  mpPositionMeasurement->Init();
+    if (mCMpu6050)              mCMpu6050->Init();
     //if (mpAccelerometer)        mpAccelerometer->Init();
-    //if(mCMpu6050)               mCMpu6050->Init();
-    //auto init_success = mCMpu6050->TestConnection() ? "mpu6050 initialized successfully!" : "mpu6050 test connection failed!";
-    //ESP_LOGI(TAG, "%s",init_success);
-    //auto temp = mCMpu6050->GetAndConvertTemperatureToCelsius();
-    //ESP_LOGI(TAG, "Temperature: %f °C",temp);
+    //TODO migrate Mpu6050 as Accelerometer or IMU
 }
 
 void CDataLogStateMachine::Receive()
@@ -134,8 +131,8 @@ void CDataLogStateMachine::Send()
         {
             logData.index++;
             if (mpPositionMeasurement)  logData.pos                = mpPositionMeasurement->GetPositionMm();
+            if (mCMpu6050)              logData.acceleration_data  = mCMpu6050->GetAndConvertAcceleration(); 
             //if (mpAccelerometer)        logData.acceleration_data  = mpAccelerometer->GetAcceleration();
-            //mCMpu6050->GetAndConvertAccelerationX();
 
             if(mMarker.load())
             {
