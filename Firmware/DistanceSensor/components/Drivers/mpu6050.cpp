@@ -20,7 +20,7 @@ CMpu6050::CMpu6050(EMpu6050_Address address, EAccelFullScaleRange accelRange, EG
     deviceAddress = address;
     currentAccelRange = accelRange;
     currentGyroRange = gyroRange;
-    TAG_MPU6050 = address == MPU6050_ADDRESS_LOW ? "MPU6050(0x68)" : "MPU6050(0x69)";
+    TAG_MPU6050 = (address == MPU6050_ADDRESS_LOW) ? "MPU6050(0x68)" : "MPU6050(0x69)";
 }
 
 CMpu6050::~CMpu6050(void)
@@ -34,7 +34,11 @@ void CMpu6050::Init()
     SetClockSource(MPU6050_CLOCK_PLL_XGYRO);
     SetFullScaleGyroRange(currentGyroRange);
     SetFullScaleAccelRange(currentAccelRange);
+    SetOutputRate(0x00);
     SetSleepEnabled(0);
+    SetFifoEnabled(1);
+    ResetFifo();
+    SetAccelFifoEnabled(true);
 }
 
 bool CMpu6050::TestConnection()
@@ -1747,36 +1751,6 @@ bool CMpu6050::GetIntDataReadyStatus()
     return (buffer[0]);
 }
 
-SAccelerationData CMpu6050::GetAcceleration()
-{   
-    SAccelerationData data = {0};
-    i2cBus->esp32_i2c_read_bytes
-    (
-        deviceAddress,
-        MPU6050_REGISTER_ACCEL_XOUT_H,
-        6,
-        buffer
-    );
-    data.acceleration_x = (((int16_t) buffer[0]) << 8) | buffer[1];
-    data.acceleration_y = (((int16_t) buffer[2]) << 8) | buffer[3];
-    data.acceleration_z = (((int16_t) buffer[4]) << 8) | buffer[5];
-
-    return data;
-}
-
-int16_t CMpu6050::GetAccelerationX()
-{
-    i2cBus->esp32_i2c_read_bytes
-    (
-        deviceAddress,
-        MPU6050_REGISTER_ACCEL_XOUT_H,
-        2,
-        buffer
-    );
-
-    return ((((int16_t) buffer[0]) << 8) | buffer[1]);
-}
-
 int GetIntValueFromAccelRange(EAccelFullScaleRange range)
 {
     switch(range)
@@ -1794,11 +1768,67 @@ int GetIntValueFromAccelRange(EAccelFullScaleRange range)
     }
 }
 
+
+SAccelerationData CMpu6050::GetAcceleration()
+{   
+    SAccelerationData data = {0};
+    i2cBus->esp32_i2c_read_bytes
+    (
+        deviceAddress,
+        MPU6050_REGISTER_ACCEL_XOUT_H,
+        6,
+        buffer
+    );
+    data.acceleration_x = (((int16_t) buffer[0]) << 8) | buffer[1];
+    data.acceleration_y = (((int16_t) buffer[2]) << 8) | buffer[3];
+    data.acceleration_z = (((int16_t) buffer[4]) << 8) | buffer[5];
+
+    //For debugging purposes
+    //ESP_LOGI(TAG_MPU6050, "AccelX: %d | AccelY: %d | AccelZ: %d", (((int16_t) buffer[0]) << 8) | buffer[1], (((int16_t) buffer[2]) << 8) | buffer[3], (((int16_t) buffer[4]) << 8) | buffer[5]);
+
+    return data;
+}
+
+SAccelerationData CMpu6050::GetAndConvertAcceleration()
+{
+    SAccelerationData data = {0};
+    ResetFifo();
+    i2cBus->esp32_i2c_read_bytes
+    (
+        deviceAddress,
+        MPU6050_REGISTER_ACCEL_XOUT_H,
+        6,
+        buffer
+    );
+
+    int16_t rawReadingX = ((((int16_t) buffer[0]) << 8) | buffer[1]);
+    int16_t rawReadingY = ((((int16_t) buffer[2]) << 8) | buffer[3]);
+    int16_t rawReadingZ = ((((int16_t) buffer[4]) << 8) | buffer[5]);
+
+    data.acceleration_x = rawReadingX/static_cast<float>(GetIntValueFromAccelRange(currentAccelRange));
+    data.acceleration_y = rawReadingY/static_cast<float>(GetIntValueFromAccelRange(currentAccelRange));
+    data.acceleration_z = rawReadingZ/static_cast<float>(GetIntValueFromAccelRange(currentAccelRange));
+
+    return data;
+}
+
+int16_t CMpu6050::GetAccelerationX()
+{
+    i2cBus->esp32_i2c_read_bytes
+    (
+        deviceAddress,
+        MPU6050_REGISTER_ACCEL_XOUT_H,
+        2,
+        buffer
+    );
+
+    return ((((int16_t) buffer[0]) << 8) | buffer[1]);
+}
+
 double CMpu6050::GetAndConvertAccelerationX()
 {
     auto rawReading = CMpu6050::GetAccelerationX();
     double accelXInG = rawReading/static_cast<double>(GetIntValueFromAccelRange(currentAccelRange));
-    ESP_LOGI(TAG_MPU6050, "Acceleration in X: %lf G",accelXInG);
     return accelXInG;        
 }
 
@@ -1819,7 +1849,6 @@ double CMpu6050::GetAndConvertAccelerationY()
 {
     auto rawReading = CMpu6050::GetAccelerationY();
     double accelYIng = rawReading/static_cast<double>(GetIntValueFromAccelRange(currentAccelRange));
-    ESP_LOGI(TAG_MPU6050, "Acceleration in Y: %lf G", accelYIng);
     return accelYIng;
 }
 
@@ -1840,7 +1869,6 @@ double CMpu6050::GetAndConvertAccelerationZ()
 {
     auto rawReading = CMpu6050::GetAccelerationZ();
     double accelZIng = rawReading/static_cast<double>(GetIntValueFromAccelRange(currentAccelRange));
-    ESP_LOGI(TAG_MPU6050, "Acceleration in Z: %lf G", accelZIng);
     return accelZIng;
 }
 
@@ -2626,7 +2654,7 @@ uint16_t CMpu6050::GetFifoCount()
         2,
         buffer
     );
-
+    ESP_LOGI(TAG_MPU6050, "Fifo count: %d", (((uint16_t) buffer[0]) << 8) | buffer[1]);
     return ((((uint16_t) buffer[0]) << 8) | buffer[1]);
 }
 

@@ -1472,6 +1472,9 @@ public:
      */
     SAccelerationData GetAcceleration();
 
+
+    SAccelerationData GetAndConvertAcceleration();
+
     /**
      * @brief Get X-axis accelerometer reading.
      *
