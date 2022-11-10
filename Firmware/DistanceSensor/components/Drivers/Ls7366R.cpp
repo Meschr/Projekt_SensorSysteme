@@ -88,7 +88,8 @@ void CLs7366r::Init()
         .input_delay_ns = 0,                
         .spics_io_num = PIN_NUM_CS,         
         .flags = SPI_DEVICE_HALFDUPLEX,     
-        .queue_size = 7,                   
+        .queue_size = 7,
+        .pre_cb = 0,                   
         .post_cb = 0                         
     };
 
@@ -99,7 +100,7 @@ void CLs7366r::Init()
     esp_err_t err;
     spi_transaction_t confMDR0;
     memset(&confMDR0, 0, sizeof(confMDR0));
-    uint8_t txbufMDR0 = (QUADRX4|FREE_RUN|INDX_RESETC|ASYNCH_INDX|FILTER_1);
+    uint8_t txbufMDR0 = (QUADRX4|FREE_RUN|ASYNCH_INDX);
     confMDR0.length = 8;
     confMDR0.cmd = WRITE_MDR0;
     confMDR0.tx_buffer = &txbufMDR0;
@@ -118,7 +119,7 @@ void CLs7366r::Init()
     ESP_ERROR_CHECK(err);
 }
 
-unsigned int CLs7366r::ReadCnt()
+int CLs7366r::ReadCnt()
 {
     spi_transaction_t cmd;
     cmd.length = 16;
@@ -127,7 +128,17 @@ unsigned int CLs7366r::ReadCnt()
     cmd.rxlength = 16;
     cmd.flags = SPI_TRANS_USE_RXDATA;
     spi_device_transmit(mSpiDeviceHdl, &cmd);
-    uint16_t databuf = SPI_SWAP_DATA_RX(*(uint32_t*)cmd.rx_data,16);
+    int16_t databuf = SPI_SWAP_DATA_RX(*(uint32_t*)cmd.rx_data,16);
 
-    return static_cast<unsigned int>(databuf);
+    return static_cast<int>(databuf);
+}
+
+void CLs7366r::ResetCnt(void)
+{
+    spi_transaction_t cmd;
+    cmd.length = 8;
+    cmd.cmd = CLR_CNTR;
+    cmd.tx_buffer = NULL;
+    cmd.rx_buffer = NULL;
+    spi_device_transmit(mSpiDeviceHdl, &cmd);
 }

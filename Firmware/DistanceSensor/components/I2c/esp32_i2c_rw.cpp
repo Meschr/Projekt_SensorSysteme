@@ -22,11 +22,11 @@ CI2cBusHandler::CI2cBusHandler(void)
 
 	i2c_config_t conf;
 	conf.mode = I2C_MODE_MASTER;
-	conf.sda_io_num = PIN_NUM_SDA; // select GPIO specific to your project
-	conf.scl_io_num = PIN_NUM_SCL; // select GPIO specific to your project
+	conf.sda_io_num = PIN_NUM_SDA; 			 // select GPIO specific to your project
+	conf.scl_io_num = PIN_NUM_SCL; 			 // select GPIO specific to your project
 	conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
 	conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
-	conf.master.clk_speed = mBusFrequency; // select frequency specific to your project
+	conf.master.clk_speed = mBusFrequency;   // select frequency specific to your project
 	conf.clk_flags = 0;
 	esp_err_t err = i2c_param_config(mI2cPortNum, &conf);
 	ESP_ERROR_CHECK(err);
