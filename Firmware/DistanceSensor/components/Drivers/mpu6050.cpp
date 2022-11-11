@@ -36,6 +36,8 @@ void CMpu6050::Init()
     SetFullScaleAccelRange(currentAccelRange);
     SetOutputRate(0x00);
     SetSleepEnabled(0);
+
+    //Fifo set-up for synchronized acceleration measurements
     SetFifoEnabled(1);
     ResetFifo();
     SetAccelFifoEnabled(true);
@@ -1769,9 +1771,9 @@ int GetIntValueFromAccelRange(EAccelFullScaleRange range)
 }
 
 
-SAccelerationData CMpu6050::GetAcceleration()
+SRawAccelerationData CMpu6050::GetAcceleration()
 {   
-    SAccelerationData data = {0};
+    SRawAccelerationData data = {0};
     i2cBus->esp32_i2c_read_bytes
     (
         deviceAddress,
@@ -1782,9 +1784,6 @@ SAccelerationData CMpu6050::GetAcceleration()
     data.acceleration_x = (((int16_t) buffer[0]) << 8) | buffer[1];
     data.acceleration_y = (((int16_t) buffer[2]) << 8) | buffer[3];
     data.acceleration_z = (((int16_t) buffer[4]) << 8) | buffer[5];
-
-    //For debugging purposes
-    //ESP_LOGI(TAG_MPU6050, "AccelX: %d | AccelY: %d | AccelZ: %d", (((int16_t) buffer[0]) << 8) | buffer[1], (((int16_t) buffer[2]) << 8) | buffer[3], (((int16_t) buffer[4]) << 8) | buffer[5]);
 
     return data;
 }
@@ -1884,9 +1883,9 @@ float CMpu6050::GetAndConvertTemperatureToCelsius()
     return (GetTemperature()/340)+36.53;
 }
 
-SRotationData CMpu6050::GetRotation()
+SRawRotationData CMpu6050::GetRotation()
 {
-    SRotationData data = {0};
+    SRawRotationData data = {0};
 
     i2cBus->esp32_i2c_read_bytes
     (

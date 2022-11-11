@@ -5,7 +5,7 @@
 #include "esp_log.h"
 #include "esp32_i2c_rw.h"
 #include "Mpu6050Registers.h"
-#include "IAccelerometer.h"
+#include "IInertialMeasurementUnit.h"
 
 // Address of MPU6050 (Can be 0x68 or 0x69):
 enum EMpu6050_Address
@@ -33,7 +33,7 @@ enum EAccelFullScaleRange
 };
 
 
-class CMpu6050 : public IAccelerometer
+class CMpu6050 : public IInertialMeasurementUnit
 {
 private:
     CI2cBusHandler* i2cBus;
@@ -1470,7 +1470,7 @@ public:
      *
      * @param data pointer to acceleration struct.
      */
-    SAccelerationData GetAcceleration();
+    SRawAccelerationData GetAcceleration();
 
 
     SAccelerationData GetAndConvertAcceleration();
@@ -1558,7 +1558,7 @@ public:
      *
      * @param data pointer to rotation struct.
      */
-    SRotationData GetRotation();
+    SRawRotationData GetRotation();
 
     /**
      * @brief Get X-axis gyroscope reading.
