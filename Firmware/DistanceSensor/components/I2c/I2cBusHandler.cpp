@@ -2,7 +2,8 @@
 #include <esp_err.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-#include "esp32_i2c_rw.h"
+
+#include "I2cBusHandler.h"
 
 #define PIN_NUM_SDA 21
 #define PIN_NUM_SCL 22
@@ -54,7 +55,7 @@ void CI2cBusHandler::SetClockFrequencyInHz(int clockSpeed)
 	mBusFrequency = clockSpeed;
 }
 
-void CI2cBusHandler::select_register(uint8_t device_address, uint8_t register_address)
+void CI2cBusHandler::SelectRegister(uint8_t device_address, uint8_t register_address)
 {
 	i2c_cmd_handle_t cmd = i2c_cmd_link_create();
 	i2c_master_start(cmd);
@@ -65,7 +66,7 @@ void CI2cBusHandler::select_register(uint8_t device_address, uint8_t register_ad
 	i2c_cmd_link_delete(cmd);
 }
 
-int8_t CI2cBusHandler::esp32_i2c_read_bytes
+int8_t CI2cBusHandler::ReadBytes
 (
 	uint8_t device_address,
 	uint8_t register_address,
@@ -73,7 +74,7 @@ int8_t CI2cBusHandler::esp32_i2c_read_bytes
 	uint8_t* data
 )
 {
-	CI2cBusHandler::select_register(device_address, register_address);
+	CI2cBusHandler::SelectRegister(device_address, register_address);
 	i2c_cmd_handle_t cmd = i2c_cmd_link_create();
 	i2c_master_start(cmd);
 	i2c_master_write_byte(cmd, (device_address << 1) | I2C_MASTER_READ, 1);
@@ -90,17 +91,17 @@ int8_t CI2cBusHandler::esp32_i2c_read_bytes
 	return (size);
 }
 
-int8_t CI2cBusHandler::esp32_i2c_read_byte
+int8_t CI2cBusHandler::ReadByte
 (
 	uint8_t device_address,
 	uint8_t register_address,
 	uint8_t* data
 )
 {
-	return (CI2cBusHandler::esp32_i2c_read_bytes(device_address, register_address, 1, data));
+	return (CI2cBusHandler::ReadBytes(device_address, register_address, 1, data));
 }
 
-int8_t CI2cBusHandler::esp32_i2c_read_bits
+int8_t CI2cBusHandler::ReadBits
 (
 	uint8_t device_address,
 	uint8_t register_address,
@@ -112,7 +113,7 @@ int8_t CI2cBusHandler::esp32_i2c_read_bits
 	uint8_t bit;
 	uint8_t count;
 
-	if ((count = CI2cBusHandler::esp32_i2c_read_byte(device_address, register_address, &bit))) {
+	if ((count = CI2cBusHandler::ReadByte(device_address, register_address, &bit))) {
 		uint8_t mask = ((1 << size) - 1) << (bit_start - size + 1);
 
 		bit &= mask;
@@ -123,7 +124,7 @@ int8_t CI2cBusHandler::esp32_i2c_read_bits
 	return (count);
 }
 
-int8_t CI2cBusHandler::esp32_i2c_read_bit
+int8_t CI2cBusHandler::ReadBit
 (
 	uint8_t device_address,
 	uint8_t register_address,
@@ -132,14 +133,14 @@ int8_t CI2cBusHandler::esp32_i2c_read_bit
 )
 {
 	uint8_t bit;
-	uint8_t count = CI2cBusHandler::esp32_i2c_read_byte(device_address, register_address, &bit);
+	uint8_t count = CI2cBusHandler::ReadByte(device_address, register_address, &bit);
 
 	*data = bit & (1 << bit_number);
 
 	return (count);
 }
 
-bool CI2cBusHandler::esp32_i2c_write_bytes
+bool CI2cBusHandler::WriteBytes
 (
 	uint8_t device_address,
 	uint8_t register_address,
@@ -160,7 +161,7 @@ bool CI2cBusHandler::esp32_i2c_write_bytes
 	return (true);
 }
 
-bool CI2cBusHandler::esp32_i2c_write_byte
+bool CI2cBusHandler::WriteByte
 (
 	uint8_t device_address,
 	uint8_t register_address,
@@ -179,7 +180,7 @@ bool CI2cBusHandler::esp32_i2c_write_byte
 	return (true);
 }
 
-bool CI2cBusHandler::esp32_i2c_write_bits
+bool CI2cBusHandler::WriteBits
 (
 	uint8_t device_address,
 	uint8_t register_address,
@@ -190,19 +191,19 @@ bool CI2cBusHandler::esp32_i2c_write_bits
 {
 	uint8_t bit = 0;
 
-	if (CI2cBusHandler::esp32_i2c_read_byte(device_address, register_address, &bit) != 0) {
+	if (CI2cBusHandler::ReadByte(device_address, register_address, &bit) != 0) {
 		uint8_t mask = ((1 << size) - 1) << (bit_start - size + 1);
 		data <<= (bit_start - size + 1);
 		data &= mask;
 		bit &= ~(mask);
 		bit |= data;
-		return (CI2cBusHandler::esp32_i2c_write_byte(device_address, register_address, bit));
+		return (CI2cBusHandler::WriteByte(device_address, register_address, bit));
 	}
 	else
 		return (false);
 }
 
-bool CI2cBusHandler::esp32_i2c_write_bit
+bool CI2cBusHandler::WriteBit
 (
 	uint8_t device_address,
 	uint8_t register_address,
@@ -212,17 +213,17 @@ bool CI2cBusHandler::esp32_i2c_write_bit
 {
 	uint8_t bit;
 
-	CI2cBusHandler::esp32_i2c_read_byte(device_address, register_address, &bit);
+	CI2cBusHandler::ReadByte(device_address, register_address, &bit);
 
 	if (data != 0)
 		bit = (bit | (1 << bit_number));
 	else
 		bit = (bit & ~(1 << bit_number));
 
-	return (CI2cBusHandler::esp32_i2c_write_byte(device_address, register_address, bit));
+	return (CI2cBusHandler::WriteByte(device_address, register_address, bit));
 }
 
-int8_t CI2cBusHandler::esp32_i2c_write_word
+int8_t CI2cBusHandler::WriteWord
 (
 	uint8_t device_address,
 	uint8_t register_address,
@@ -231,7 +232,7 @@ int8_t CI2cBusHandler::esp32_i2c_write_word
 {
 	uint8_t data_1[] = {(uint8_t) (data >> 8), (uint8_t) (data & 0xFF)};
 
-	CI2cBusHandler::esp32_i2c_write_bytes(device_address, register_address, 2, data_1);
+	CI2cBusHandler::WriteBytes(device_address, register_address, 2, data_1);
 
 	return (1);
 }

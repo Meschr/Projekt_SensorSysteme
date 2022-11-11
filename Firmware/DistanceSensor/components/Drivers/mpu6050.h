@@ -3,9 +3,11 @@
 
 #include <math.h>
 #include "esp_log.h"
-#include "esp32_i2c_rw.h"
-#include "Mpu6050Registers.h"
+
 #include "IInertialMeasurementUnit.h"
+#include "Mpu6050Registers.h"
+#include "I2cBusHandler.h"
+
 
 // Address of MPU6050 (Can be 0x68 or 0x69):
 enum EMpu6050_Address
@@ -32,13 +34,12 @@ enum EAccelFullScaleRange
     ACCEL_FULL_SCALE_RANGE_16  = 0x03       // Accelerometerrange 16G
 };
 
-
 class CMpu6050 : public IInertialMeasurementUnit
 {
 private:
     CI2cBusHandler* i2cBus;
     uint8_t deviceAddress;
-    const char *TAG_MPU6050 = "MPU6050";
+    const char *TAG = "MPU6050";
     EAccelFullScaleRange currentAccelRange;
     EGyroFullScaleRange currentGyroRange;
 

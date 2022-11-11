@@ -19,4 +19,4 @@ public:
     virtual SAccelerationData GetAndConvertAcceleration();
 };
 
-#endif // #ifndef _IACCELEROMETER_hf
+#endif //#ifndef _IACCELEROMETER_hf

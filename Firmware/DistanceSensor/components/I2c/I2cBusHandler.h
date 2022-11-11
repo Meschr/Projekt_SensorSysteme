@@ -1,5 +1,5 @@
-#ifndef ESP32_I2C_RW_H
-#define ESP32_I2C_RW_H
+#ifndef _I2C_RW_hf
+#define _I2C_RW_hf
 
 #include <driver/i2c.h>
 
@@ -17,7 +17,7 @@ public:
      * @param device_address I2C slave device address.
      * @param register_address Address of the first register to read from.
      */
-    void select_register(uint8_t device_address, uint8_t register_address);
+    void SelectRegister(uint8_t device_address, uint8_t register_address);
 
     /**
     * @brief Read multiple bytes from 8-bit registers.
@@ -29,7 +29,7 @@ public:
     * 
     * @return Status of read operation.
     */
-    int8_t esp32_i2c_read_bytes
+    int8_t ReadBytes
     (
         uint8_t device_address,
         uint8_t register_address,
@@ -46,7 +46,7 @@ public:
     * 
     * @return Status of read operation.
     */
-    int8_t esp32_i2c_read_byte
+    int8_t ReadByte
     (  
         uint8_t device_address,
         uint8_t register_address,
@@ -64,7 +64,7 @@ public:
     * 
     * @return Status of read operation.
     */
-    int8_t esp32_i2c_read_bits
+    int8_t ReadBits
     (
         uint8_t device_address,
         uint8_t register_address,
@@ -83,7 +83,7 @@ public:
      * 
      * @return Status of read operation.
      */
-    int8_t esp32_i2c_read_bit
+    int8_t ReadBit
     (
         uint8_t device_address,
         uint8_t register_address,
@@ -101,7 +101,7 @@ public:
      * 
      * @return Status of write operation.
      */
-    bool esp32_i2c_write_bytes
+    bool WriteBytes
     (
         uint8_t device_address,
         uint8_t register_address,
@@ -118,7 +118,7 @@ public:
      * 
      * @return Status of write operation.
      */
-    bool esp32_i2c_write_byte
+    bool WriteByte
     (
         uint8_t device_address,
         uint8_t register_address,
@@ -136,7 +136,7 @@ public:
      * 
      * @return Status of write operation.
      */
-    bool esp32_i2c_write_bits
+    bool WriteBits
     (
         uint8_t device_address,
         uint8_t register_address,
@@ -155,7 +155,7 @@ public:
      * 
      * @return Status of write operation.
      */
-    bool esp32_i2c_write_bit
+    bool WriteBit
     (
         uint8_t device_address,
         uint8_t register_address,
@@ -172,7 +172,7 @@ public:
      * 
      * @return Status of write operation.
      */
-    int8_t esp32_i2c_write_word
+    int8_t WriteWord
     (
         uint8_t device_address,
         uint8_t register_address,
@@ -190,4 +190,4 @@ private:
     int mBusFrequency = 100 * 1000; 
 };
 
-#endif //ESP32_I2C_RW_H
+#endif //#ifndef _I2C_RW_hf
