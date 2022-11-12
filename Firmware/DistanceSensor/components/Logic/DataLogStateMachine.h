@@ -9,8 +9,7 @@
 #include "LogData.h"
 #include "IFileStorage.h"
 #include "IPositionMeasurement.h"
-//#include "IAccelerometer.h"
-#include "mpu6050.h"
+#include "IInertialMeasurementUnit.h"
 
 class CDataLogStateMachine
 {
@@ -43,11 +42,10 @@ private:
 
     static CDataLogStateMachine* mspDataLogStateMachine;
 
-    QueueHandle_t           mQueueHdl;
-    IFileStorage*           mpFileStorage;
-    IPositionMeasurement*   mpPositionMeasurement;
-    //IAccelerometer*         mpAccelerometer;
-    CMpu6050*               mCMpu6050;
+    QueueHandle_t               mQueueHdl;
+    IFileStorage*               mpFileStorage;
+    IPositionMeasurement*       mpPositionMeasurement;
+    IInertialMeasurementUnit*   mpImu;
     std::atomic<ELogState>  mLogState;
     std::atomic_bool        mMarker;
 };

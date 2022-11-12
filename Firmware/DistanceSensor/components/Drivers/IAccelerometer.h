@@ -3,7 +3,6 @@
 
 #include <LogData.h>
 
-// Interface der Beschleunigungsmessung
 class IAccelerometer
 {
 public:
@@ -13,11 +12,11 @@ public:
     // Initialisierung
     virtual void Init(void) = 0;
 
-    // Aktuelle Beschleunigung
-    virtual SAccelerationData GetAcceleration(void) = 0;
-    
-    // Aktuelle Rotation
-    virtual SRotationData GetRotation(void) = 0;
+    // Aktuelle Beschleunigung raw daten
+    virtual SRawAccelerationData GetAcceleration(void) = 0;
+
+    // Aktuelle Beschleunigung umgerechnete daten
+    virtual SAccelerationData GetAndConvertAcceleration();
 };
 
-#endif // #ifndef _IACCELEROMETER_hf
+#endif //#ifndef _IACCELEROMETER_hf

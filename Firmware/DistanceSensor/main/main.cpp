@@ -12,7 +12,7 @@ std::atomic<int> flagrestart = ATOMIC_VAR_INIT(restart_fast|restart_log);
 TaskHandle_t Task1, Task2 = NULL;
 
 extern "C" int app_main(void)
-{
+{   
     xTaskCreatePinnedToCore(tFast, "tFast", 4098*8, NULL, 1, &Task1, 1);
     xTaskCreatePinnedToCore(tLog, "tLog", 4098*8, NULL, 2, &Task2, 0);
 
