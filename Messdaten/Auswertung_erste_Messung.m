@@ -1,8 +1,9 @@
 % Projekt Sensorsysteme
 % Auswertung erste Messungen 
 
-file =  fileread("ZYX_hinUndher.TXT");
+file =  csvread("MEssung30mm.TXT",1);
 % Split the data at $
-data = regexp(file,',','split')
-z = data(:,3);
-plot(z)
+
+
+plot(file(:,6),file(:,1))
+grid on
