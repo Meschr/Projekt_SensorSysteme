@@ -14,6 +14,8 @@ accelZ = file(:,5);
 
 figure(1)
 plot(t,positionSensor);
+xlabel('time t in s');
+ylabel('distance in mm');
 grid on
 
 figure(2)
@@ -23,4 +25,6 @@ grid on;
 plot(t,accelX);
 plot(t,accelY);
 plot(t,accelZ);
+xlabel('time t in s');
+ylabel('acceleration in G');
 legend("X-Axis","Y-Axis","Z-Axis");
