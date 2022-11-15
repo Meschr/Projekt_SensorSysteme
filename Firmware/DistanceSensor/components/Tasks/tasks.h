@@ -3,6 +3,13 @@
 
 #include <atomic>
 
+#define SamplingFrequency 500 //in Hz
+
+static int ConvertSamplingFrequencyToSamplingTimeInMs(int frequency)
+{
+    return static_cast<int>(1000/frequency);
+}
+
 enum ERestartTasks
 {
     restart_fast = 0x1,

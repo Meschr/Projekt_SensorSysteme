@@ -6,14 +6,18 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_log.h"
 
+#include "tasks.h"
 #include "DataLogStateMachine.h"
 #include "GpioInit.h"
 
-#include "tasks.h"
+static const char* TAG = "tLog";
 
 void tLog(void* pvParameters)
 {
+    ESP_LOGI(TAG, "Task started");
+    
     CDataLogStateMachine::CreateInstance();
     CDataLogStateMachine::GetInstance()->Init();
     InitGpio();

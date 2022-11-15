@@ -14,15 +14,10 @@
 
 static const char* TAG = "tFast";
 
-int ConvertSamplingFrequencyToSamplingTimeInMs(int frequency)
-{
-    return (int) 1000/frequency;
-}
-
-
 void tFast(void* pvParameters)
 {
     ESP_LOGI(TAG, "Task started");
+
     // Initialise the xLastWakeTime variable with the current time.
     TickType_t xLastWakeTime = xTaskGetTickCount();
     const TickType_t xFrequency = ConvertSamplingFrequencyToSamplingTimeInMs(SamplingFrequency) / portTICK_PERIOD_MS; 
