@@ -33,9 +33,8 @@ legend("X-Axis","Y-Axis","Z-Axis");
 windowSize = 5; 
 b = (1/windowSize)*ones(1,windowSize);
 a = 1;
-
-filteredX =  filter(b,a,accelX);
+filteredX =  filter(
 figure(3)
 hold on 
-%plot(accelX);
-plot(filteredX);
+plot(long)
+plot(accelX)
