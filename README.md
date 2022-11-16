@@ -2,5 +2,5 @@ Collaborators: **[Marcel Escher](https://github.com/Meschr)**, **Marvin Bogensch
 
 # Beschleunigungssignal 
 
-Filter: https://de.mathworks.com/help/matlab/ref/filter.html
+Filter: https://de.mathworks.com/help/matlab/ref/filter.html  
 CSV read: https://de.mathworks.com/help/matlab/ref/csvread.html
