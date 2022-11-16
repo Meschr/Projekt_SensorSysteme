@@ -38,7 +38,7 @@ void CMpu6050::Init()
     SetSleepEnabled(0);
 
     //Fifo set-up for synchronized acceleration measurements
-    SetFifoEnabled(1);
+    SetFifoEnabled(true);
     ResetFifo();
     SetAccelFifoEnabled(true);
 }
@@ -1791,6 +1791,10 @@ SAccelerationData CMpu6050::GetAndConvertAcceleration()
 {
     SAccelerationData data = {0};
     ResetFifo();
+    
+    if(!(GetFifoCount()>=6))
+        return data;
+
     i2cBus->ReadBytes
     (
         deviceAddress,
