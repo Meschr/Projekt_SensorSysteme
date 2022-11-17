@@ -1,5 +1,7 @@
 #include "Mpu6050.h"
 #include <string.h>
+#include <iostream>
+#include "LogInfoHandler.h"
 
 #define PI              (3.14159265358979323846f)
 #define GYRO_MEAS_ERROR (PI * (60.0f / 180.0f))
@@ -31,6 +33,15 @@ CMpu6050::~CMpu6050(void)
 
 void CMpu6050::Init()
 {
+    float accelBiasRes[3];
+    float gyroBiasRes[3];
+    Calibrate(accelBiasRes, gyroBiasRes);
+    memcpy(CLogInfoHandler::GetInstance()->mLogInfo.accelBias, accelBiasRes, sizeof(accelBiasRes));
+    memcpy(CLogInfoHandler::GetInstance()->mLogInfo.gyroBias, gyroBiasRes, sizeof(gyroBiasRes));
+    
+    Reset();
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+
     SetClockSource(MPU6050_CLOCK_PLL_XGYRO);
     SetFullScaleGyroRange(currentGyroRange);
     SetFullScaleAccelRange(currentAccelRange);
@@ -2658,7 +2669,7 @@ uint16_t CMpu6050::GetFifoCount()
         2,
         buffer
     );
-    ESP_LOGI(TAG, "Fifo count: %d", (((uint16_t) buffer[0]) << 8) | buffer[1]);
+    //ESP_LOGI(TAG, "Fifo count: %d", (((uint16_t) buffer[0]) << 8) | buffer[1]);
     return ((((uint16_t) buffer[0]) << 8) | buffer[1]);
 }
 
@@ -3336,9 +3347,9 @@ void CMpu6050::Calibrate(float *accel_bias_res, float *gyro_bias_res)
     SetTempFifoEnabled(0);
     SetClockSource(MPU6050_CLOCK_INTERNAL);
     SetMultiMasterEnabled(0);
-    SetFifoEnabled(0);
     SetI2cMasterModeEnabled(0);
     ResetSensors();
+    SetSleepEnabled(0);
     vTaskDelay(15 / portTICK_PERIOD_MS);
   
     // Configure MPU6050 gyro and accelerometer for bias calculation:
@@ -3352,24 +3363,31 @@ void CMpu6050::Calibrate(float *accel_bias_res, float *gyro_bias_res)
      */
 
     // Enable gyroscope and accelerometer sensors for FIFO:
-    SetFifoEnabled(1);
-    SetAccelFifoEnabled(1);
-    SetZGyroFifoEnabled(1);
-    SetYGyroFifoEnabled(1);
-    SetXGyroFifoEnabled(1);
+    SetFifoEnabled(true);
+    ResetFifo();
+    SetAccelFifoEnabled(true);
+    SetZGyroFifoEnabled(true);
+    SetYGyroFifoEnabled(true);
+    SetXGyroFifoEnabled(true);
     vTaskDelay(80 / portTICK_PERIOD_MS); // Accumulate 80 samples in 80 ms.
  
     // At end of sample accumulation, turn off FIFO sensor read:
-    SetFifoEnabled(0);
-    SetAccelFifoEnabled(0);
-    SetZGyroFifoEnabled(0);
-    SetYGyroFifoEnabled(0);
-    SetXGyroFifoEnabled(0);
-    SetTempFifoEnabled(0); 
+    SetFifoEnabled(false);
+    SetAccelFifoEnabled(false);
+    SetZGyroFifoEnabled(false);
+    SetYGyroFifoEnabled(false);
+    SetXGyroFifoEnabled(false);
+    SetTempFifoEnabled(false); 
   
     // Sets of full gyro and accelerometer data for averaging:
     packet_count = GetFifoCount() / 12;
- 
+    
+    if(packet_count == 0)
+    {
+        //exit computation: no values measured
+        return;
+    }
+
     for (int i = 0; i < packet_count; i++) {
         // Read data for averaging:
         GetFifoBytes(&tmp_data[0], 6);

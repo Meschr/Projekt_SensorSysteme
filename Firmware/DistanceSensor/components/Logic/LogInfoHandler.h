@@ -6,6 +6,8 @@
 struct LogInfo
 {
     int SamplingFreq;
+    float accelBias[3];
+    float gyroBias[3];
 };
 
 class CLogInfoHandler
