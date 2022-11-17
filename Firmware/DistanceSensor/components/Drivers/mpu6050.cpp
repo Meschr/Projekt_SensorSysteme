@@ -1807,9 +1807,11 @@ SAccelerationData CMpu6050::GetAndConvertAcceleration()
     int16_t rawReadingY = ((((int16_t) buffer[2]) << 8) | buffer[3]);
     int16_t rawReadingZ = ((((int16_t) buffer[4]) << 8) | buffer[5]);
 
-    data.acceleration_x = rawReadingX/static_cast<float>(GetIntValueFromAccelRange(currentAccelRange));
-    data.acceleration_y = rawReadingY/static_cast<float>(GetIntValueFromAccelRange(currentAccelRange));
-    data.acceleration_z = rawReadingZ/static_cast<float>(GetIntValueFromAccelRange(currentAccelRange));
+    int conversionFactorToG = GetIntValueFromAccelRange(currentAccelRange);
+
+    data.acceleration_x = rawReadingX/static_cast<float>(conversionFactorToG);
+    data.acceleration_y = rawReadingY/static_cast<float>(conversionFactorToG);
+    data.acceleration_z = rawReadingZ/static_cast<float>(conversionFactorToG);
 
     return data;
 }

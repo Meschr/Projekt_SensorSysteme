@@ -1,9 +1,9 @@
 % Projekt Sensorsysteme
 % Auswertung erste Messungen 
 clc;
-clear;
+clear all;
 
-file =  csvread("ZYX_hinUndHer.TXT",1);
+file =  csvread("Data1.TXT",1);
 % Split the data at $
 
 positionSensor = file(:,1);
@@ -37,5 +37,5 @@ a = 1;
 filteredX =  filter(b,a,accelX);
 figure(3)
 hold on 
-%plot(accelX);
-plot(filteredX);
+plot(t,accelX);
+plot(t,filteredX);
