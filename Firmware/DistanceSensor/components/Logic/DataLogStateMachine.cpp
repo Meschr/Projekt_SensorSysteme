@@ -19,8 +19,8 @@ CDataLogStateMachine::CDataLogStateMachine(void)
     mQueueHdl = xQueueCreate(120, sizeof(SLogData));
     mpFileStorage = new CSdmmc();
     mpPositionMeasurement = new CLs7366r(500,4);
-    mpImu = new CMpu6050(MPU6050_ADDRESS_LOW, ACCEL_FULL_SCALE_RANGE_4, GYRO_FULL_SCALE_RANGE_250);
-
+    mpImuUnten = new CMpu6050(MPU6050_ADDRESS_LOW, ACCEL_FULL_SCALE_RANGE_4, GYRO_FULL_SCALE_RANGE_250);
+    mpImuOben = new CMpu6050(MPU6050_ADDRESS_HIGH, ACCEL_FULL_SCALE_RANGE_4, GYRO_FULL_SCALE_RANGE_250);
     mMarker  = ATOMIC_VAR_INIT(false);
 }
 
@@ -45,15 +45,19 @@ CDataLogStateMachine::~CDataLogStateMachine()
     delete mpPositionMeasurement;
     mpPositionMeasurement = NULL;
 
-    delete mpImu;
-    mpImu = NULL;
+    delete mpImuUnten;
+    mpImuUnten = NULL;
+
+    delete mpImuOben;
+    mpImuOben = NULL;
 }
 
 void CDataLogStateMachine::Init()
 {
     if (mpFileStorage)          mpFileStorage->Init();
     if (mpPositionMeasurement)  mpPositionMeasurement->Init();
-    if (mpImu)                  mpImu->Init();
+    if (mpImuUnten)             mpImuUnten->Init();
+    if (mpImuOben)              mpImuOben->Init();
 }
 
 void CDataLogStateMachine::Receive()
@@ -68,7 +72,7 @@ void CDataLogStateMachine::Receive()
                 mpFileStorage->PutString(CLogInfoHandler::GetInstance()->GetLogInfo());
 
                 //Wegsensor nullen
-                mpPositionMeasurement->ResetPosition();
+                //TODO mpPositionMeasurement->ResetPosition();
 
                 // File wurde erstellt -> beginne zu Loggen
                 mLogState.store(LogStateLogging);
@@ -132,7 +136,9 @@ void CDataLogStateMachine::Send()
         {
             logData.index++;
             if (mpPositionMeasurement)  logData.pos                = mpPositionMeasurement->GetPositionMm();
-            if (mpImu)                  logData.acceleration_data  = mpImu->GetAndConvertAcceleration();
+            //if (mpImuUnten)             logData.acceleration_data  = mpImuUnten->GetAndConvertAcceleration();
+            if (mpImuUnten)             logData.acceleration_data.acceleration_x  = static_cast<float>(mpImuUnten->GetAndConvertAccelerationX());
+            if (mpImuOben)              logData.acceleration_data.acceleration_y  = static_cast<float>(mpImuOben->GetAndConvertAccelerationX());
 
             if(mMarker.load())
             {

@@ -45,9 +45,10 @@ private:
     QueueHandle_t               mQueueHdl;
     IFileStorage*               mpFileStorage;
     IPositionMeasurement*       mpPositionMeasurement;
-    IInertialMeasurementUnit*   mpImu;
-    std::atomic<ELogState>  mLogState;
-    std::atomic_bool        mMarker;
+    IInertialMeasurementUnit*   mpImuUnten;
+    IInertialMeasurementUnit*   mpImuOben;
+    std::atomic<ELogState>      mLogState;
+    std::atomic_bool            mMarker;
 };
 
 #endif // #ifndef _DATALOGSTATEMACHINE_hf

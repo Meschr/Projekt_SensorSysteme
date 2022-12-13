@@ -136,6 +136,7 @@ int CLs7366r::ReadCnt()
 void CLs7366r::ResetCnt(void)
 {
     //FIXME not working
+    //trows this error spi_master: spi_device_queue_trans(782): txdata transfer > host maximum
     spi_transaction_t cmd;
     cmd.length = 8;
     cmd.cmd = CLR_CNTR;

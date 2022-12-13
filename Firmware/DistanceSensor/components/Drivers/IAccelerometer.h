@@ -17,6 +17,9 @@ public:
 
     // Aktuelle Beschleunigung umgerechnete daten
     virtual SAccelerationData GetAndConvertAcceleration();
+
+    //Aktuelle Beschleunigung in X-Richtung
+    virtual double GetAndConvertAccelerationX();
 };
 
 #endif //#ifndef _IACCELEROMETER_hf

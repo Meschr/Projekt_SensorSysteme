@@ -1845,7 +1845,7 @@ int16_t CMpu6050::GetAccelerationX()
 double CMpu6050::GetAndConvertAccelerationX()
 {
     auto rawReading = CMpu6050::GetAccelerationX();
-    double accelXInG = rawReading/static_cast<double>(GetIntValueFromAccelRange(currentAccelRange));
+    double accelXInG = static_cast<double>(rawReading)/static_cast<double>(GetIntValueFromAccelRange(currentAccelRange));
     return accelXInG;        
 }
 
