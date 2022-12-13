@@ -8,7 +8,7 @@ close all;
 
 g = 9.81;
 
-file =  importdata("Statisch_2.TXT", ',',2);
+file =  importdata("Statisch_1.TXT", ',',2);
 % Split the data at $
 
 positionSensor = file.data(:,1);
@@ -30,7 +30,7 @@ mw_2 = mean(accelX_2)
 
 % Load next file
 
-file_1 =  importdata("Messung_2_Zittrie.TXT", ',',2);
+file_1 =  importdata("Messung_1.TXT", ',',2);
 % Split the data at $
 
 positionSensor_1 = file_1.data(:,1);
@@ -80,10 +80,12 @@ a = 1;
 % plot(t,accelX_1);
 % plot(t,filteredX);
 
-
+FX = gradient(positionSensor_1);
 v = cumtrapz(diff);
 figure(4)
-plot(t,v)
+plot(t,v./1000)
+hold on
+plot(t,FX)
 title('Integral 1 -> velocity')
 
 x = cumtrapz(v);
