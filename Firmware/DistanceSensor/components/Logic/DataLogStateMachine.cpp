@@ -16,10 +16,12 @@ static const char* TAG = "LOG";
 CDataLogStateMachine::CDataLogStateMachine(void)
     : mLogState(LogStateInactive)
 {
-    mQueueHdl = xQueueCreate(100, sizeof(SLogData));
+    mQueueHdl = xQueueCreate(120, sizeof(SLogData));
     mpFileStorage = new CSdmmc();
     mpPositionMeasurement = new CLs7366r(500,4);
     mpImu = new CMpu6050(MPU6050_ADDRESS_LOW, ACCEL_FULL_SCALE_RANGE_4, GYRO_FULL_SCALE_RANGE_250);
+
+    mMarker  = ATOMIC_VAR_INIT(false);
 }
 
 void CDataLogStateMachine::CreateInstance(void)
