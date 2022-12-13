@@ -20,10 +20,10 @@ void tFast(void* pvParameters)
 
     // Initialise the xLastWakeTime variable with the current time.
     TickType_t xLastWakeTime = xTaskGetTickCount();
-    const TickType_t xFrequency = ConvertSamplingFrequencyToSamplingTimeInMs(SamplingFrequency) / portTICK_PERIOD_MS; 
+    const TickType_t xFrequency = 2 / portTICK_PERIOD_MS; 
     
     CLogInfoHandler::GetInstance()->mLogInfo.SamplingFreq = SamplingFrequency;
-
+    
     flagrestart-=restart_fast;
     while (flagrestart != 0) {}
     for( ;; )

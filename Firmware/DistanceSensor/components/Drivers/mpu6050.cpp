@@ -33,11 +33,11 @@ CMpu6050::~CMpu6050(void)
 
 void CMpu6050::Init()
 {
-    float accelBiasRes[3];
-    float gyroBiasRes[3];
-    Calibrate(accelBiasRes, gyroBiasRes);
-    memcpy(CLogInfoHandler::GetInstance()->mLogInfo.accelBias, accelBiasRes, sizeof(accelBiasRes));
-    memcpy(CLogInfoHandler::GetInstance()->mLogInfo.gyroBias, gyroBiasRes, sizeof(gyroBiasRes));
+    //float accelBiasRes[3];
+    //float gyroBiasRes[3];
+    //Calibrate(accelBiasRes, gyroBiasRes);
+    //memcpy(CLogInfoHandler::GetInstance()->mLogInfo.accelBias, accelBiasRes, sizeof(accelBiasRes));
+    //memcpy(CLogInfoHandler::GetInstance()->mLogInfo.gyroBias, gyroBiasRes, sizeof(gyroBiasRes));
     
     Reset();
     vTaskDelay(100 / portTICK_PERIOD_MS); //needed because of reset of chip
@@ -1823,6 +1823,8 @@ SAccelerationData CMpu6050::GetAndConvertAcceleration()
     data.acceleration_x = rawReadingX/static_cast<float>(conversionFactorToG);
     data.acceleration_y = rawReadingY/static_cast<float>(conversionFactorToG);
     data.acceleration_z = rawReadingZ/static_cast<float>(conversionFactorToG);
+
+    //ESP_LOGI(TAG, "X: %f| Y: %f| Z: %f", data.acceleration_x,data.acceleration_y,data.acceleration_z);
 
     return data;
 }
