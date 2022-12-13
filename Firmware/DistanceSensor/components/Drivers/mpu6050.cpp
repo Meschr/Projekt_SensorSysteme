@@ -40,7 +40,7 @@ void CMpu6050::Init()
     memcpy(CLogInfoHandler::GetInstance()->mLogInfo.gyroBias, gyroBiasRes, sizeof(gyroBiasRes));
     
     Reset();
-    vTaskDelay(100 / portTICK_PERIOD_MS);
+    vTaskDelay(100 / portTICK_PERIOD_MS); //needed because of reset of chip
 
     SetClockSource(MPU6050_CLOCK_PLL_XGYRO);
     SetFullScaleGyroRange(currentGyroRange);
