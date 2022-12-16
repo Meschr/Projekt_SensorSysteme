@@ -3,7 +3,7 @@
 
 %% Daten einlesen
 clc;
-clear all;
+clear;
 close all;
 
 g = 9.81;
@@ -80,22 +80,30 @@ a = 1;
 % plot(t,accelX_1);
 % plot(t,filteredX);
 
-FX = gradient(positionSensor_1);
-v = cumtrapz(t,diff);
+FX = 1000 * gradient(positionSensor_1);
+v = 1000 * cumtrapz(t,diff);
+
+% % Test Fehler bestimmen
+% fehler_v = v - FX;
+% p = polyfit(t,fehler_v,2);
+% pf = p(1).*t+p(2).*t+p(3).*t.^2;
+% figure(22)
+% plot(t,pf)
+
 figure(4)
-plot(t,v*1000)
+plot(t,v)
 hold on
-plot(t,FX*1000)
-title('Integral 1 -> velocity')
-legend('x -> acc','s -> ref')
+plot(t,FX)
+grid on
+legend('v -> acc','v -> ref')
 xlabel('time in t')
 ylabel('velocity in m/s')
-legend('v -> acc','v -> ref')
-grid on
+title('Integral 1 -> velocity')
 
 x = cumtrapz(t,v);
+
 figure(5)
-plot(t,x*1000)
+plot(t,x)
 hold on
 plot(t,positionSensor_1)
 grid on
