@@ -81,20 +81,25 @@ a = 1;
 % plot(t,filteredX);
 
 FX = gradient(positionSensor_1);
-v = cumtrapz(diff);
+v = cumtrapz(t,diff);
 figure(4)
-plot(t,v./1000)
+plot(t,v*1000)
 hold on
-plot(t,FX)
+plot(t,FX*1000)
 title('Integral 1 -> velocity')
+legend('x -> acc','s -> ref')
+xlabel('time in t')
+ylabel('velocity in m/s')
+legend('v -> acc','v -> ref')
+grid on
 
-x = cumtrapz(v);
+x = cumtrapz(t,v);
 figure(5)
-plot(t,x./1000)
+plot(t,x*1000)
 hold on
 plot(t,positionSensor_1)
 grid on
-legend('x -> acc','s -> ref')
+legend('s -> acc','s -> ref')
 xlabel('time in t')
 ylabel('distance in mm')
 title('Integral 2 -> Distance')
