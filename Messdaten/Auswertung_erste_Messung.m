@@ -91,7 +91,7 @@ v = 1000 * cumtrapz(t,diff);
 % plot(t,pf)
 
 figure(4)
-plot(t,v)
+plot(t,v*2)
 hold on
 plot(t,FX)
 grid on
