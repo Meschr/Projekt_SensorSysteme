@@ -2,9 +2,14 @@
 
 # Pin Usage 
 
+<style>
+r { color: Red }
+g { color: Green }
+</style>
+
 | Pin Num | GPIO | Type |   Name    | Function | Used |
 |:-------:|:----:|:----:|:---------:|:--------:|:----:|
-| 1       | `-`  | P    |           |          |      |
+| 1       | `-`  | P    |           |          |  `<r>test</r>`    |
 | 2       | `-`  | P    |           |          |      |
 | 3       | `-`  | I    |           |          |      | 
 | 4       | `36` | I    | SENSOR_VP |          |      | 
