@@ -14,7 +14,7 @@ public:
     virtual int16_t GetTemperature(void) = 0;
 
     // Aktuelle Temperatur umgerechnet in Grad Celsius
-    float GetAndConvertTemperatureToCelsius();
+    virtual float GetAndConvertTemperatureToCelsius() = 0;
 };
 
 #endif // #ifndef _ITEMPSENSOR_hf

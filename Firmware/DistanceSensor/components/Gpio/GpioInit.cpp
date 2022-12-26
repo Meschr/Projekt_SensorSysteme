@@ -29,7 +29,7 @@ void IRAM_ATTR button_set_marker_isr_handler(void *arg)
 
 void InitGpio()
 {
-    gpio_pad_select_gpio(GPIO_START_LOGGING);
+    //gpio_pad_select_gpio(GPIO_START_LOGGING);
     gpio_set_direction(GPIO_NUM_16, GPIO_MODE_INPUT);
     gpio_set_intr_type(GPIO_NUM_16, GPIO_INTR_POSEDGE);
     gpio_set_direction(GPIO_NUM_17, GPIO_MODE_INPUT);
