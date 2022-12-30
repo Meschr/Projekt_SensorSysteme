@@ -10,8 +10,12 @@
 #include "LS7366R.h"
 #include "Mpu6050.h"
 
+#include "AnalogInputOneShot.h"
+
 CDataLogStateMachine* CDataLogStateMachine::mspDataLogStateMachine = NULL;
 static const char* TAG = "LOG";
+    auto analogInput = new AnalogInputOneShot(ADC_UNIT_2, ADC_CHANNEL_7, ADC_ATTEN_DB_11);
+
 
 CDataLogStateMachine::CDataLogStateMachine(void)
     : mLogState(LogStateInactive)
@@ -58,6 +62,10 @@ void CDataLogStateMachine::Init()
     if (mpPositionMeasurement)  mpPositionMeasurement->Init();
     if (mpImuUnten)             mpImuUnten->Init();
     if (mpImuOben)              mpImuOben->Init();
+
+
+    analogInput->GetGpioNum();
+    analogInput->Calibrate();
 }
 
 void CDataLogStateMachine::Receive()
@@ -97,7 +105,7 @@ void CDataLogStateMachine::Receive()
                     ,logData.marker
                     ,logData.acceleration_data.acceleration_x
                     ,logData.acceleration_data.acceleration_y
-                    ,logData.acceleration_data.acceleration_z
+                    ,logData.adc0
                     ,logData.index);
                 dataString.append(newElement);
             }
@@ -139,6 +147,8 @@ void CDataLogStateMachine::Send()
             //if (mpImuUnten)             logData.acceleration_data  = mpImuUnten->GetAndConvertAcceleration();
             if (mpImuUnten)             logData.acceleration_data.acceleration_x  = static_cast<float>(mpImuUnten->GetAndConvertAccelerationX());
             if (mpImuOben)              logData.acceleration_data.acceleration_y  = static_cast<float>(mpImuOben->GetAndConvertAccelerationX());
+            logData.adc0 = analogInput->GetVoltageCalibrated();
+
 
             if(mMarker.load())
             {

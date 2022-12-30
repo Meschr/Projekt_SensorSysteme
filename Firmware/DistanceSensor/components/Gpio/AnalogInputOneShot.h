@@ -3,10 +3,10 @@
 
 #include "IAnalogInput.h"
 
-static const char* TAG = "AIN_OS";
+static const char* TAG_OS = "AIN_OS";
 
 
-class AnalogInputOneShot: IAnalogInput
+class AnalogInputOneShot: public IAnalogInput
 {
 private:
     adc_oneshot_unit_handle_t mAdcHandle;
@@ -19,6 +19,7 @@ public:
     int GetRawValue();
     int GetRawValueWithErrorCheck();
     double GetRawValueAndConvertToVoltage();
+    double GetVoltageCalibrated();
 };
 
 AnalogInputOneShot::AnalogInputOneShot(adc_unit_t unit, adc_channel_t channel, adc_atten_t attenuation) : IAnalogInput(unit, channel, attenuation)
@@ -48,7 +49,7 @@ int AnalogInputOneShot::GetGpioNum()
     int gpioNum[1];
     ESP_ERROR_CHECK(adc_oneshot_channel_to_io(mAdcUnit, mAdcChannel, gpioNum));
 
-    ESP_LOGI(TAG, "Gpio_Num: %d", gpioNum[0]);
+    ESP_LOGI(TAG_OS, "Gpio_Num: %d", gpioNum[0]);
 
     return *gpioNum;
 }
@@ -57,7 +58,7 @@ int AnalogInputOneShot::GetRawValue()
 {
     int adc_raw[1];
     adc_oneshot_read(mAdcHandle, mAdcChannel, adc_raw);
-    ESP_LOGI(TAG, "Raw_Adc_Reading: %d", adc_raw[0]);
+    ESP_LOGI(TAG_OS, "Raw_Adc_Reading: %d", adc_raw[0]);
     return adc_raw[0];
 }
 
@@ -80,9 +81,21 @@ double AnalogInputOneShot::GetRawValueAndConvertToVoltage()
     adc_oneshot_read(mAdcHandle, mAdcChannel, Dout);
     Vout = static_cast<double>(Dout[0]) * (Vmax / Dmax);
 
-    ESP_LOGI(TAG, "Converted_Adc_Reading: %f in mV", Vout);
+    ESP_LOGI(TAG_OS, "Converted_Adc_Reading: %f in mV", Vout);
 
     return Vout;
+}
+
+double AnalogInputOneShot::GetVoltageCalibrated()
+{
+    int rawValue[1];
+    int voltage[1];
+    adc_oneshot_read(mAdcHandle, mAdcChannel, rawValue);
+    adc_cali_raw_to_voltage(mAdcCalibrationHandle, rawValue[0], &voltage[0]);
+
+    //ESP_LOGI(TAG_OS, "%d", voltage[0]);
+
+    return voltage[0];
 }
 
 #endif // #ifndef _IANALOGINPUTONESHOT_hf

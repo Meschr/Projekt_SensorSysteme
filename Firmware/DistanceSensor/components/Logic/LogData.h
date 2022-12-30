@@ -33,7 +33,7 @@ struct SLogData
 {
     bool marker;
     double pos = 0;
-    int adc0 = 0;
+    double adc0 = 0;
     unsigned int index = 0;
 
     SAccelerationData acceleration_data;
