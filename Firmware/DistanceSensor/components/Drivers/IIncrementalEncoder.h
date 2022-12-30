@@ -23,9 +23,9 @@ public:
 
 protected:
     // Auslesen der gezaehlten Inkremente
-    virtual int ReadCnt(void);
+    virtual int ReadCnt(void) = 0;
 
-    virtual void ResetCnt(void);
+    virtual void ResetCnt(void) = 0;
 
     unsigned int mIncPerRev;      //Inkremente pro Umdrehung
     unsigned int mQuadratureMode; //Quadraturmodus (1-4fach)

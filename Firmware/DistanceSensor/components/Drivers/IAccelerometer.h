@@ -16,10 +16,10 @@ public:
     virtual SRawAccelerationData GetAcceleration(void) = 0;
 
     // Aktuelle Beschleunigung umgerechnete daten
-    virtual SAccelerationData GetAndConvertAcceleration();
+    virtual SAccelerationData GetAndConvertAcceleration() = 0;
 
     //Aktuelle Beschleunigung in X-Richtung
-    virtual double GetAndConvertAccelerationX();
+    virtual double GetAndConvertAccelerationX() = 0;
 };
 
 #endif //#ifndef _IACCELEROMETER_hf
