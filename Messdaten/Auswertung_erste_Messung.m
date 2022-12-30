@@ -42,7 +42,7 @@ accelX_21 = (file_1.data(:,4)./2);      % Sensor oben    Due to offset (2G inste
 accelX_1_zero = accelX_11 - mw_1;
 accelX_2_zero = accelX_21 - mw_2;
 
-diff = (accelX_1_zero - accelX_2_zero).*g ;
+diff = (accelX_1_zero - accelX_2_zero)*g ;
 
 figure(1)
 plot(t,positionSensor_1);
@@ -81,20 +81,20 @@ a = 1;
 % plot(t,filteredX);
 
 FX = gradient(positionSensor_1);
-v = cumtrapz(diff);
+v = cumtrapz(t,diff);
 figure(4)
-plot(t,v./1000)
+plot(t,v*1000)
 hold on
 plot(t,FX)
 title('Integral 1 -> velocity')
 
-x = cumtrapz(v);
+x = cumtrapz(t,v);
 figure(5)
-plot(t,x./1000)
+plot(t,x*1000)
 hold on
 plot(t,positionSensor_1)
 grid on
-legend('x -> acc','s -> ref')
+legend('Berechnet','Referenz')
 xlabel('time in t')
 ylabel('distance in mm')
-title('Integral 2 -> Distance')
+title('Distanz')

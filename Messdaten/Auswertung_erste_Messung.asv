@@ -13,8 +13,8 @@ file =  importdata("Statisch_1.TXT", ',',2);
 
 positionSensor = file.data(:,1);
 t = linspace(0.002, 0.002*length(positionSensor), length(positionSensor))'; %Zeitvektor
-accelX_1 = file.data(:,3)./2;      % Sensor unten   Due to offset (2G instead 1G we divide /2)
-accelX_2 = file.data(:,4)./2;      % Sensor oben    Due to offset (2G instead 1G we divide /2)
+accelX_1 = (file.data(:,3)./2);      % Sensor unten   Due to offset (2G instead 1G we divide /2)
+accelX_2 = (file.data(:,4)./2);      % Sensor oben    Due to offset (2G instead 1G we divide /2)
 
 % Average or mean value of array
 
@@ -35,14 +35,14 @@ file_1 =  importdata("Messung_1.TXT", ',',2);
 
 positionSensor_1 = file_1.data(:,1);
 t = linspace(0.002, 0.002*length(positionSensor_1), length(positionSensor_1))'; %Zeitvektor
-accelX_11 = file_1.data(:,3)./2;      % Sensor unten   Due to offset (2G instead 1G we divide /2)
-accelX_21 = file_1.data(:,4)./2;      % Sensor oben    Due to offset (2G instead 1G we divide /2)
+accelX_11 = (file_1.data(:,3)./2);      % Sensor unten   Due to offset (2G instead 1G we divide /2)
+accelX_21 = (file_1.data(:,4)./2);      % Sensor oben    Due to offset (2G instead 1G we divide /2)
 
 
 accelX_1_zero = accelX_11 - mw_1;
 accelX_2_zero = accelX_21 - mw_2;
 
-diff = (accelX_1_zero - accelX_2_zero) * g;
+diff = (accelX_1_zero - accelX_2_zero)*g ;
 
 figure(1)
 plot(t,positionSensor_1);
@@ -80,16 +80,21 @@ a = 1;
 % plot(t,accelX_1);
 % plot(t,filteredX);
 
-
+FX = gradient(positionSensor_1);
 v = cumtrapz(diff);
 figure(4)
 plot(t,v)
+hold on
+plot(t,FX)
+title('Integral 1 -> velocity')
 
-x = cumtrapz(v);
+x = cumtrapz(,);
 figure(5)
-plot(t,x./1000)
+plot(t,x*4/1000)
 hold on
 plot(t,positionSensor_1)
 grid on
 legend('x -> acc','s -> ref')
-xlabel('time ')
+xlabel('time in t')
+ylabel('distance in mm')
+title('Integral 2 -> Distance')
