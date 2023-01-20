@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32228.430
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LadaPlotter.UI", "LadaPlotter\LadaPlotter.UI.csproj", "{BC8613CE-40F1-419F-A305-2DE7494F1AFC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{87973CFC-DFC3-4820-B17B-C6829B9D268E} = {87973CFC-DFC3-4820-B17B-C6829B9D268E}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LadaPlotter.Resources", "LadaPlotter.Resources\LadaPlotter.Resources.csproj", "{87973CFC-DFC3-4820-B17B-C6829B9D268E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BC8613CE-40F1-419F-A305-2DE7494F1AFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC8613CE-40F1-419F-A305-2DE7494F1AFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC8613CE-40F1-419F-A305-2DE7494F1AFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC8613CE-40F1-419F-A305-2DE7494F1AFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87973CFC-DFC3-4820-B17B-C6829B9D268E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87973CFC-DFC3-4820-B17B-C6829B9D268E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87973CFC-DFC3-4820-B17B-C6829B9D268E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87973CFC-DFC3-4820-B17B-C6829B9D268E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8ACD271E-AF86-4AD9-AC56-782A221D185E}
+	EndGlobalSection
+EndGlobal

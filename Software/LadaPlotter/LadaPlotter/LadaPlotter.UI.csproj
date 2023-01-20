@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Shell\WindowIcon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Caliburn.Micro" Version="4.0.212" />
+    <PackageReference Include="MahApps.Metro" Version="2.4.9" />
+    <PackageReference Include="ScottPlot" Version="4.1.60" />
+    <PackageReference Include="ScottPlot.WPF" Version="4.1.60" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Shell\WindowIcon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="TabElements\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LadaPlotter.Resources\LadaPlotter.Resources.csproj" />
+  </ItemGroup>
+
+</Project>
