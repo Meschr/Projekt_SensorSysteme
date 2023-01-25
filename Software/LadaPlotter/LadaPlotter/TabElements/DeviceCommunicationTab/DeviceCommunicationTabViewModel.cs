@@ -1,28 +1,20 @@
-﻿using System;
-using LadaPlotter.Resources.Logging;
+﻿using System.Collections.ObjectModel;
+using Caliburn.Micro;
+using LadaPlotter.UI.TabElements.DataTab;
+using LadaPlotter.UI.TabElements.DataTab.DataTabControl;
 
-namespace LadaPlotter.UI.TabElements.DeviceCommunicationTab
+namespace LadaPlotter.UI.TabElements.DeviceCommunicationTab;
+
+public class DeviceCommunicationTabViewModel
 {
-    public class DeviceCommunicationTabViewModel
+    private readonly IEventAggregator _eventAggregator;
+
+    public DeviceCommunicationTabViewModel(IEventAggregator eventAggregator)
     {
-        private string _stringToSend;
-
-        private static readonly ILogger Logger = Logger<DeviceCommunicationTabViewModel>.Create();
-
-        public DeviceCommunicationTabViewModel()
-        {
-           
-        }
-
-        public void SendData()
-        {
-
-        }
-
-        public String StringToSend
-        {
-            get => _stringToSend;
-            set => _stringToSend = value;
-        }
+        _eventAggregator = eventAggregator;
+        OpenTabsCollection.Add(new DataTabItemViewModel(_eventAggregator,"Test"));
+        OpenTabsCollection.Add(new DataTabItemViewModel(_eventAggregator,"Test"));
     }
+
+    public ObservableCollection<DataTabItemViewModel> OpenTabsCollection { get; set; } = new();
 }

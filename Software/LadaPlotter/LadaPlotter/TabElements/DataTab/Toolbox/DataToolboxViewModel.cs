@@ -3,7 +3,7 @@ using Caliburn.Micro;
 using LadaPlotter.Resources.Events;
 using MahApps.Metro.Controls;
 
-namespace LadaPlotter.UI.TabElements.DataTab
+namespace LadaPlotter.UI.TabElements.DataTab.Toolbox
 {
     public class DataToolboxViewModel
     {

@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace LadaPlotter.UI.TabElements.DataTab
+namespace LadaPlotter.UI.TabElements.DataTab.Toolbox
 {
     /// <summary>
     /// Interaktionslogik für DataToolboxView.xaml

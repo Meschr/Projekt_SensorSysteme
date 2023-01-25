@@ -5,6 +5,9 @@ using Caliburn.Micro;
 using LadaPlotter.Resources.Data;
 using LadaPlotter.Resources.Events;
 using LadaPlotter.Resources.Logic;
+using LadaPlotter.UI.TabElements.DataTab.DataTabControl;
+using LadaPlotter.UI.TabElements.DataTab.FileList;
+using LadaPlotter.UI.TabElements.DataTab.Toolbox;
 
 namespace LadaPlotter.UI.TabElements.DataTab
 {

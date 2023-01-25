@@ -33,6 +33,10 @@
         <mah:MetroTabItem Header="LiveMode" />
 
         <mah:MetroTabItem Header="Statistics" />
+
+        <mah:MetroTabItem Header="Test">
+             <ContentControl x:Name="TestTabViewModel" />
+        </mah:MetroTabItem>
     </mah:MetroAnimatedTabControl>
 
 </mah:MetroWindow>

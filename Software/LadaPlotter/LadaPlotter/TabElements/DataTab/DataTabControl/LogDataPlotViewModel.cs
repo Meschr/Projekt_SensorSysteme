@@ -8,9 +8,9 @@ using Caliburn.Micro;
 using LadaPlotter.Resources.Computation;
 using LadaPlotter.Resources.Data;
 using LadaPlotter.Resources.Events;
-using LadaPlotter.UI.TabElements.DataTab.MeasurementPlots;
+using LadaPlotter.UI.TabElements.DataTab.DataTabControl.MeasurementPlots;
 
-namespace LadaPlotter.UI.TabElements.DataTab
+namespace LadaPlotter.UI.TabElements.DataTab.DataTabControl
 {
     public class LogDataPlotViewModel : IHandle<ScrollingStateToggledEvent>
     {

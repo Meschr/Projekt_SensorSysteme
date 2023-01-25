@@ -11,5 +11,10 @@ namespace LadaPlotter.UI.TabElements.DeviceCommunicationTab
         {
             InitializeComponent();
         }
+
+        private void TabControl_SelectionChanged()
+        {
+
+        }
     }
 }

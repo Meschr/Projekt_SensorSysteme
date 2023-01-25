@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Caliburn.Micro;
 using LadaPlotter.Resources.Events;
 
-namespace LadaPlotter.UI.TabElements.DataTab
+namespace LadaPlotter.UI.TabElements.DataTab.FileList
 {
     public class DataListViewModel : PropertyChangedBase
     {

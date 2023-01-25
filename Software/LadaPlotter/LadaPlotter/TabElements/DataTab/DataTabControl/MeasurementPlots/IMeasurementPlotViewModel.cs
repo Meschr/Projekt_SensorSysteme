@@ -1,6 +1,6 @@
 ﻿using ScottPlot;
 
-namespace LadaPlotter.UI.TabElements.DataTab.MeasurementPlots;
+namespace LadaPlotter.UI.TabElements.DataTab.DataTabControl.MeasurementPlots;
 
 public interface IMeasurementPlotViewModel
 {

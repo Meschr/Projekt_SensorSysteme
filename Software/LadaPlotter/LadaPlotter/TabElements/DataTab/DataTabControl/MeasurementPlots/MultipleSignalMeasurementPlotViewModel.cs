@@ -1,22 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using LadaPlotter.Resources.Data;
 using ScottPlot;
 
-namespace LadaPlotter.UI.TabElements.DataTab.MeasurementPlots
+namespace LadaPlotter.UI.TabElements.DataTab.DataTabControl.MeasurementPlots
 {
-    public class SignalMeasurementPlotViewModel : IMeasurementPlotViewModel
+    public class MultipleSignalMeasurementPlotViewModel : IMeasurementPlotViewModel
     {
-        private IMeasurement _measurement;
+        private readonly IEnumerable<IMeasurement> _measurements;
 
         private WpfPlot _plot;
 
-        public SignalMeasurementPlotViewModel(IMeasurement measurement)
+        public MultipleSignalMeasurementPlotViewModel(IEnumerable<IMeasurement> measurements)
         {
-            _measurement = measurement;
+            _measurements = measurements;
             Plot = new WpfPlot();
 
-            if (measurement != null)
+            if (measurements != null)
                 InitPlotWithValues();
         }
 
@@ -47,9 +49,14 @@ namespace LadaPlotter.UI.TabElements.DataTab.MeasurementPlots
         public void InitPlotWithValues()
         {
             _plot.Plot.Clear();
-            _plot.Plot.AddSignal(_measurement.Values, _measurement.SamplingRate, Color.LawnGreen);
-            _plot.Plot.Title(_measurement.Name + " " + _measurement.Values.Length + " Data Points");
-            _plot.Plot.YLabel(_measurement.Name + " in " + _measurement.Unit);
+            _plot.Plot.Title("Acceleration in all Axis");
+
+            foreach (var measurement in _measurements)
+            {
+                _plot.Plot.AddSignal(measurement.Values, measurement.SamplingRate, label: measurement.Name);
+            }
+
+            _plot.Plot.YLabel(_measurements.First().Name + " in " + _measurements.First().Unit);
             _plot.Render();
         }
     }

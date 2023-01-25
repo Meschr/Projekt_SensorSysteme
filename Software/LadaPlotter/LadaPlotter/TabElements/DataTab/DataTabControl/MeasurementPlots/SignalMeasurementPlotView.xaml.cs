@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace LadaPlotter.UI.TabElements.DataTab.MeasurementPlots
+namespace LadaPlotter.UI.TabElements.DataTab.DataTabControl.MeasurementPlots
 {
     /// <summary>
     /// Interaktionslogik für SignalMeasurementPlotView.xaml

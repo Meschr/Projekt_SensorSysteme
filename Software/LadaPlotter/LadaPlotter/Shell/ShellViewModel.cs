@@ -18,7 +18,7 @@ public class ShellViewModel : PropertyChangedBase
 
     public ShellViewModel()
     {
-        _deviceCommunicationTabViewModel = new DeviceCommunicationTabViewModel();
+        _deviceCommunicationTabViewModel = new DeviceCommunicationTabViewModel(_eventAggregator);
         _localDataTabViewModel = new DataTabViewModel(_eventAggregator);
     }
 
@@ -42,6 +42,15 @@ public class ShellViewModel : PropertyChangedBase
         }
     }
 
+    public DeviceCommunicationTabViewModel TestTabViewModel
+    {
+        get => _deviceCommunicationTabViewModel;
+        set
+        {
+            _deviceCommunicationTabViewModel = value;
+            NotifyOfPropertyChange();
+        }
+    }
 
     public void LogoIcon()
     {

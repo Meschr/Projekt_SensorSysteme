@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-namespace LadaPlotter.UI.TabElements.DataTab
+namespace LadaPlotter.UI.TabElements.DataTab.DataTabControl
 {
     /// <summary>
     /// Interaction logic for LogDataPlotView.xaml
