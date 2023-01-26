@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Caliburn.Micro;
@@ -17,7 +19,7 @@ namespace LadaPlotter.UI.TabElements.DataTab
 
         private DataListViewModel _dataListViewModel;
         private DataToolboxViewModel _dataToolboxViewModel;
-        private LogDataPlotViewModel _dataPlotViewModel;
+        private AnimatedDataTabControlViewModel _animatedDataTabControlViewModel;
 
         private List<LogData> _loadedLogData = new List<LogData>();
 
@@ -27,7 +29,7 @@ namespace LadaPlotter.UI.TabElements.DataTab
             _eventAggregator.Subscribe(this);
             _dataListViewModel = new DataListViewModel(eventAggregator);
             _dataToolboxViewModel = new DataToolboxViewModel(eventAggregator);
-            _dataPlotViewModel = new LogDataPlotViewModel(eventAggregator);
+            _animatedDataTabControlViewModel = new AnimatedDataTabControlViewModel(eventAggregator);
         }
 
 
@@ -39,6 +41,15 @@ namespace LadaPlotter.UI.TabElements.DataTab
             {
                 var path = fileDialog.FileName;
                 await HeavyMethodAsync(path);
+
+                //todo make async 
+                if (!CheckForExistingFileInMeasurementDirectory(Path.GetFileName(fileDialog.FileName)))
+                {
+                    var logDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                        "Ladadogger\\MeasurementData\\");
+
+                    File.Copy(fileDialog.FileName, logDirectory + Path.GetFileName(fileDialog.FileName));
+                }
             }
         }
 
@@ -47,7 +58,7 @@ namespace LadaPlotter.UI.TabElements.DataTab
             var logDataReader = new LogDataReaderFromFile();
             var logData = await logDataReader.Read(in_path);
             _loadedLogData.Add(logData);
-            DataPlotViewModel.UpdateUi(logData); //todo refactor LogDataReader
+            AnimatedDataTabControlViewModel.UpdateUi(logData); //todo refactor LogDataReader
         }
 
         public void Handle(LogDataChangedEvent message)
@@ -66,7 +77,7 @@ namespace LadaPlotter.UI.TabElements.DataTab
 
             if (isAlreadyLoaded)
             {
-                DataPlotViewModel.UpdateUi(currentLogData);
+                AnimatedDataTabControlViewModel.UpdateUi(currentLogData);
             }
             else
             {
@@ -94,19 +105,52 @@ namespace LadaPlotter.UI.TabElements.DataTab
             }
         }
 
-        public LogDataPlotViewModel DataPlotViewModel
+        public AnimatedDataTabControlViewModel AnimatedDataTabControlViewModel
         {
-            get => _dataPlotViewModel;
+            get => _animatedDataTabControlViewModel;
             set
             {
-                _dataPlotViewModel = value;
+                _animatedDataTabControlViewModel = value;
                 NotifyOfPropertyChange();
             }
         }
 
         public Task HandleAsync(LogDataChangedEvent message, CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException(); //todo look this up
+            var isAlreadyLoaded = false;
+            var currentLogData = new LogData();
+            foreach (var logData in _loadedLogData)
+            {
+                if (logData.Name == message.LogDataName)
+                {
+                    currentLogData = logData;
+                    isAlreadyLoaded = true;
+                }
+
+            }
+
+            if (isAlreadyLoaded)
+            {
+                AnimatedDataTabControlViewModel.UpdateUi(currentLogData);
+            }
+            else
+            {
+                HeavyMethodAsync(message.Filepath);
+            }
+            return Task.CompletedTask;
+        }
+
+        bool CheckForExistingFileInMeasurementDirectory(string fileNameWithExtension)
+        {
+            var logDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Ladadogger\\MeasurementData");
+
+            if (File.Exists(logDirectory + "\\" + fileNameWithExtension))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

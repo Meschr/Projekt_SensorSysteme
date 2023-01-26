@@ -6,6 +6,7 @@ public class DataTabItemViewModel : PropertyChangedBase
 {
     private readonly IEventAggregator _eventAggregator;
     private string _tabItemName;
+    private bool _showBoarder;
 
     public DataTabItemViewModel(IEventAggregator eventAggregator, string name)
     {
@@ -13,10 +14,16 @@ public class DataTabItemViewModel : PropertyChangedBase
         _tabItemName = name;
         //display the empty plots when no LogData is loaded
         DataTabContent = new LogDataPlotViewModel(_eventAggregator);
-  }
+    }
 
     public LogDataPlotViewModel DataTabContent { get; set; }
-        
+
+    public bool ShowBoarder
+    {
+        get => _showBoarder;
+        set => Set(ref _showBoarder, value);
+    }
+
     public string TabItemName
     {
         get => _tabItemName;

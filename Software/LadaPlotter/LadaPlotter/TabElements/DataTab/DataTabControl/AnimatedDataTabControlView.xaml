@@ -10,15 +10,20 @@
              d:DesignHeight="450" d:DesignWidth="800">
 
     <mah:MetroAnimatedTabControl Style="{DynamicResource MahApps.Styles.TabControl.Animated}"
-                                 ItemsSource="{Binding OpenTabsCollection}">
-        <TabControl.Resources>
-            <Style TargetType="TabItem" BasedOn="{StaticResource MahApps.Styles.TabItem}">
-                <Style.Setters>
-                    <Setter Property="BorderThickness" Value="1" />
-                    <Setter Property="mah:HeaderedControlHelper.HeaderFontSize" Value="10" />
-                </Style.Setters>
+                                 ItemsSource="{Binding OpenTabsCollection}"
+                                 SelectedItem="{Binding SelectedTab}">
+
+        <TabControl.ItemContainerStyle>
+            <Style>
+                <Setter Property="Border.BorderThickness" Value="0" />
+                <Setter Property="TabItem.Height" Value="30"/>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding ShowBoarder}" Value="True">
+                        <Setter Property="Border.BorderThickness" Value="1" />
+                    </DataTrigger>
+                </Style.Triggers>
             </Style>
-        </TabControl.Resources>
+        </TabControl.ItemContainerStyle>
 
         <TabControl.ItemTemplate>
             <!-- this is the header template-->
@@ -33,14 +38,13 @@
                     </Grid.RowDefinitions>
 
                     <TextBlock Grid.Column="0" Text="{Binding TabItemName}" HorizontalAlignment="Center"
-                               VerticalAlignment="Center" />
+                               VerticalAlignment="Center"/>
 
                     <iconPacks:PackIconControl Grid.Column="1"
                                                Kind="{x:Static iconPacks:PackIconForkAwesomeKind.Times}"
+                                               Margin="7,5,0,0"
                                                HorizontalAlignment="Right"
-                                               VerticalAlignment="Center"
-                                               Width="10"
-                                               Height="10" />
+                                               VerticalAlignment="Center"/>
                 </Grid>
             </DataTemplate>
         </TabControl.ItemTemplate>
@@ -53,5 +57,4 @@
         </TabControl.ContentTemplate>
 
     </mah:MetroAnimatedTabControl>
-
 </UserControl>
