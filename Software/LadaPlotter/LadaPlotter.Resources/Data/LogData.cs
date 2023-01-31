@@ -1,11 +1,15 @@
 ﻿using System.Collections.ObjectModel;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace LadaPlotter.Resources.Data
 {
     public class LogData
     {
-        public LogData()
+        private string _name;
+
+        public LogData(string name)
         {
+            _name = name;
             Processed = false;
             TimeStamp = DateTime.Now; //todo später auslesen aus logfile
         }
@@ -14,7 +18,11 @@ namespace LadaPlotter.Resources.Data
 
         public DateTime TimeStamp { get; }
 
-        public string Name { get; set; }
+        public string Name
+        {
+            get => _name;
+            set => _name = value;
+        }
 
         public ObservableCollection<IMeasurement> Measurements { get; } = new ObservableCollection<IMeasurement>();
 
