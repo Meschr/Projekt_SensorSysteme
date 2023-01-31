@@ -31,6 +31,7 @@ namespace LadaPlotter.Resources.Logic
                     var marker = false;
                     double pos = 0;
 
+                    
                     if (linesplit.Length >= 6) index = Convert.ToUInt32(linesplit[5]);
                     if (linesplit.Length >= 5) accelZ = Convert.ToDouble(linesplit[4], CultureInfo.InvariantCulture);
                     if (linesplit.Length >= 4) accelY = Convert.ToDouble(linesplit[3], CultureInfo.InvariantCulture);
@@ -49,7 +50,7 @@ namespace LadaPlotter.Resources.Logic
                 logData.AddMeasurement(new PositionMeasurement(positionValues.ToArray(), 500));
                 logData.AddMeasurement(new AccelerationMeasurement(accelerationX.ToArray(), 500));
                 logData.AddMeasurement(new AccelerationMeasurement(accelerationY.ToArray(), 500));
-                logData.AddMeasurement(new AccelerationMeasurement(accelerationZ.ToArray(), 500));
+                logData.AddMeasurement(new PositionMeasurement(accelerationZ.ToArray(), 500));
             }
 
             return logData;

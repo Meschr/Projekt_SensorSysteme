@@ -45,8 +45,8 @@ private:
     QueueHandle_t               mQueueHdl;
     IFileStorage*               mpFileStorage;
     IPositionMeasurement*       mpPositionMeasurement;
-    IInertialMeasurementUnit*   mpImuUnten;
-    IInertialMeasurementUnit*   mpImuOben;
+    //IInertialMeasurementUnit*   mpImuUnten;
+    //IInertialMeasurementUnit*   mpImuOben;
     std::atomic<ELogState>      mLogState;
     std::atomic_bool            mMarker;
 };

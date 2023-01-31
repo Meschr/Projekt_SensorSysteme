@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using LadaPlotter.Resources.Data;
 
 namespace LadaPlotter.UI.TabElements.DataTab.DataTabControl;
 
@@ -8,12 +9,13 @@ public class DataTabItemViewModel : PropertyChangedBase
     private string _tabItemName;
     private bool _showBoarder;
 
-    public DataTabItemViewModel(IEventAggregator eventAggregator, string name)
+    public DataTabItemViewModel(IEventAggregator eventAggregator, string name, LogData logData)
     {
         _eventAggregator = eventAggregator;
         _tabItemName = name;
         //display the empty plots when no LogData is loaded
         DataTabContent = new LogDataPlotViewModel(_eventAggregator);
+        DataTabContent.UpdateUi(logData);
     }
 
     public LogDataPlotViewModel DataTabContent { get; set; }

@@ -93,7 +93,7 @@ double AnalogInputOneShot::GetVoltageCalibrated()
     adc_oneshot_read(mAdcHandle, mAdcChannel, rawValue);
     adc_cali_raw_to_voltage(mAdcCalibrationHandle, rawValue[0], &voltage[0]);
 
-    //ESP_LOGI(TAG_OS, "%d", voltage[0]);
+    ESP_LOGI(TAG_OS, "%d", voltage[0]);
 
     return voltage[0];
 }

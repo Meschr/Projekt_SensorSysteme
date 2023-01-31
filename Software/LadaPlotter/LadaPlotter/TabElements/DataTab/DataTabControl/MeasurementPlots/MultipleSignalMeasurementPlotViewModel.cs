@@ -50,6 +50,7 @@ namespace LadaPlotter.UI.TabElements.DataTab.DataTabControl.MeasurementPlots
         {
             _plot.Plot.Clear();
             _plot.Plot.Title("Acceleration in all Axis");
+            _plot.Plot.Style(Style.Gray1);
 
             foreach (var measurement in _measurements)
             {

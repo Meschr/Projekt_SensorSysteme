@@ -16,7 +16,7 @@ public class AnimatedDataTabControlViewModel
 
     public void UpdateUi(LogData currentLogData)
     {
-        OpenTabsCollection.Add(new DataTabItemViewModel(_eventAggregator, currentLogData.Name));
+        OpenTabsCollection.Add(new DataTabItemViewModel(_eventAggregator, currentLogData.Name, currentLogData));
         
         if (SelectedTab is null)
             SelectedTab = OpenTabsCollection.First();

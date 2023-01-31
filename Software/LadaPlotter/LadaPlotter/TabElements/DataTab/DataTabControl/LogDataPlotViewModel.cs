@@ -24,10 +24,6 @@ namespace LadaPlotter.UI.TabElements.DataTab.DataTabControl
         {
             _eventAggregator = eventAggregator;
             _eventAggregator.Subscribe(this);
-            //display the empty plots when no LogData is loaded
-            MeasurementPlotViewModels.Add(new SignalMeasurementPlotViewModel(null));
-            MeasurementPlotViewModels.Add(new SignalMeasurementPlotViewModel(null));
-            MeasurementPlotViewModels.Add(new SignalMeasurementPlotViewModel(null));
         }
 
         public ObservableCollection<IMeasurementPlotViewModel> MeasurementPlotViewModels { get; } =
@@ -57,6 +53,14 @@ namespace LadaPlotter.UI.TabElements.DataTab.DataTabControl
 
         public void UpdateUi(LogData currentLogData)
         {
+            var forkDamperPositions = new List<IMeasurement>();
+            foreach (var measurement in currentLogData.Measurements)
+                if (measurement is PositionMeasurement positionMeasurement)
+                {
+                    forkDamperPositions.Add(positionMeasurement);
+                }
+            MeasurementPlotViewModels.Add(new MultipleSignalMeasurementPlotViewModel(forkDamperPositions));
+            /*
             MeasurementPlotViewModels.Clear();
             _logDataProcessing.ProcessLogData(currentLogData);
 
@@ -69,7 +73,7 @@ namespace LadaPlotter.UI.TabElements.DataTab.DataTabControl
             }   
 
             if(currentLogData.Any())
-                MeasurementPlotViewModels.Add(new MultipleSignalMeasurementPlotViewModel(allAxisAcceleration));
+                
 
             /*
             foreach (var measurement in currentLogData.Measurements)

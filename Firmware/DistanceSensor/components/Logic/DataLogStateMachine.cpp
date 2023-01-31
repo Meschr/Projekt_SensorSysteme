@@ -14,7 +14,8 @@
 
 CDataLogStateMachine* CDataLogStateMachine::mspDataLogStateMachine = NULL;
 static const char* TAG = "LOG";
-    auto analogInput = new AnalogInputOneShot(ADC_UNIT_2, ADC_CHANNEL_7, ADC_ATTEN_DB_11);
+
+auto analogInput = new AnalogInputOneShot(ADC_UNIT_2, ADC_CHANNEL_7, ADC_ATTEN_DB_11);
 
 
 CDataLogStateMachine::CDataLogStateMachine(void)
@@ -23,8 +24,8 @@ CDataLogStateMachine::CDataLogStateMachine(void)
     mQueueHdl = xQueueCreate(120, sizeof(SLogData));
     mpFileStorage = new CSdmmc();
     mpPositionMeasurement = new CLs7366r(500,4);
-    mpImuUnten = new CMpu6050(MPU6050_ADDRESS_LOW, ACCEL_FULL_SCALE_RANGE_4, GYRO_FULL_SCALE_RANGE_250);
-    mpImuOben = new CMpu6050(MPU6050_ADDRESS_HIGH, ACCEL_FULL_SCALE_RANGE_4, GYRO_FULL_SCALE_RANGE_250);
+    //mpImuUnten = new CMpu6050(MPU6050_ADDRESS_LOW, ACCEL_FULL_SCALE_RANGE_4, GYRO_FULL_SCALE_RANGE_250);
+    //mpImuOben = new CMpu6050(MPU6050_ADDRESS_HIGH, ACCEL_FULL_SCALE_RANGE_4, GYRO_FULL_SCALE_RANGE_250);
     mMarker  = ATOMIC_VAR_INIT(false);
 }
 
@@ -49,20 +50,19 @@ CDataLogStateMachine::~CDataLogStateMachine()
     delete mpPositionMeasurement;
     mpPositionMeasurement = NULL;
 
-    delete mpImuUnten;
-    mpImuUnten = NULL;
+    //delete mpImuUnten;
+    //mpImuUnten = NULL;
 
-    delete mpImuOben;
-    mpImuOben = NULL;
+    //delete mpImuOben;
+    //mpImuOben = NULL;
 }
 
 void CDataLogStateMachine::Init()
 {
     if (mpFileStorage)          mpFileStorage->Init();
     if (mpPositionMeasurement)  mpPositionMeasurement->Init();
-    if (mpImuUnten)             mpImuUnten->Init();
-    if (mpImuOben)              mpImuOben->Init();
-
+    //if (mpImuUnten)             mpImuUnten->Init();
+    //if (mpImuOben)              mpImuOben->Init();
 
     analogInput->GetGpioNum();
     analogInput->Calibrate();
@@ -144,9 +144,8 @@ void CDataLogStateMachine::Send()
         {
             logData.index++;
             if (mpPositionMeasurement)  logData.pos                = mpPositionMeasurement->GetPositionMm();
-            //if (mpImuUnten)             logData.acceleration_data  = mpImuUnten->GetAndConvertAcceleration();
-            if (mpImuUnten)             logData.acceleration_data.acceleration_x  = static_cast<float>(mpImuUnten->GetAndConvertAccelerationX());
-            if (mpImuOben)              logData.acceleration_data.acceleration_y  = static_cast<float>(mpImuOben->GetAndConvertAccelerationX());
+            //if (mpImuUnten)             logData.acceleration_data.acceleration_x  = static_cast<float>(mpImuUnten->GetAndConvertAccelerationX());
+            //if (mpImuOben)              logData.acceleration_data.acceleration_y  = static_cast<float>(mpImuOben->GetAndConvertAccelerationX());
             logData.adc0 = analogInput->GetVoltageCalibrated();
 
 

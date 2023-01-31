@@ -12,8 +12,8 @@ public class DeviceCommunicationTabViewModel
     public DeviceCommunicationTabViewModel(IEventAggregator eventAggregator)
     {
         _eventAggregator = eventAggregator;
-        OpenTabsCollection.Add(new DataTabItemViewModel(_eventAggregator,"Test"));
-        OpenTabsCollection.Add(new DataTabItemViewModel(_eventAggregator,"Test"));
+        //OpenTabsCollection.Add(new DataTabItemViewModel(_eventAggregator,"Test"));
+        //OpenTabsCollection.Add(new DataTabItemViewModel(_eventAggregator,"Test"));
     }
 
     public ObservableCollection<DataTabItemViewModel> OpenTabsCollection { get; set; } = new();
