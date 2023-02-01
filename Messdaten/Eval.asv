@@ -1,0 +1,16 @@
+%% Daten einlesen
+clc;
+clear all;
+close all;
+
+g = 9.81;
+
+file =  importdata("DATA1.TXT", ',',2);
+
+% Split the data at $
+positionSensor = file.data(:,1); 
+t = linspace(0.002, 0.002*length(positionSensor), length(positionSensor))'; %Zeitvektor
+
+accelX_1 = (file.data(:,3));      % Sensor unten   Due to offset (2G instead 1G we divide /2)
+accelX_2 = (file.data(:,6));      % Sensor oben    Due to offset (2G instead 1G we divide /2)
+

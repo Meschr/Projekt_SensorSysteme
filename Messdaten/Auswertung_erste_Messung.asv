@@ -8,7 +8,7 @@ close all;
 
 g = 9.81;
 
-file =  importdata("Statisch_1.TXT", ',',2);
+file =  importdata("DATA1.TXT", ',',2);
 % Split the data at $
 
 positionSensor = file.data(:,1);
@@ -81,20 +81,20 @@ a = 1;
 % plot(t,filteredX);
 
 FX = gradient(positionSensor_1);
-v = cumtrapz(diff);
+v = cumtrapz(t,diff);
 figure(4)
-plot(t,v)
+plot(t,v*1000)
 hold on
 plot(t,FX)
 title('Integral 1 -> velocity')
 
-x = cumtrapz(,);
+x = cumtrapz(t,v);
 figure(5)
-plot(t,x*4/1000)
+plot(t,x*1000)
 hold on
 plot(t,positionSensor_1)
 grid on
-legend('x -> acc','s -> ref')
+legend('Berechnet','Referenz')
 xlabel('time in t')
 ylabel('distance in mm')
-title('Integral 2 -> Distance')
+title('Distanz')
