@@ -1,0 +1,133 @@
+% Projekt Sensorsysteme
+% Auswertung erste Messungen 
+
+%% Daten einlesen
+clc;
+clear;
+close all;
+
+g = 9.81;
+fs = 500;           % sampling frequency
+fc = 25;            % cut frequency
+
+file =  importdata("Statisch.TXT", ',',2);
+% Split the data at $
+
+positionSensor = file.data(:,1);
+t_static = linspace(0.002, 0.002*length(positionSensor), length(positionSensor))'; %Zeitvektor
+accelY_1 = (file.data(:,3)/2);      % Sensor unten   Due to offset (2G instead 1G we divide /2)
+accelY_2 = (file.data(:,4)/2);      % Sensor oben    Due to offset (2G instead 1G we divide /2)
+
+% Average or mean value of array
+mw_1 = mean(accelY_1)
+mw_2 = mean(accelY_2)
+
+OffsetBetweenSensors = mw_2-mw_1
+
+% Load next file
+file_1 =  importdata("Federn_1.TXT", ',',2);
+% Split the data at $
+
+positionSensor_1 = file_1.data(:,1);
+t = linspace(0.002, 0.002*length(positionSensor_1), length(positionSensor_1))'; %Zeitvektor
+accelY_11 = (file_1.data(:,3)./2);      % Sensor unten   Due to offset (2G instead 1G we divide /2)
+accelY_21 = (file_1.data(:,4)./2);      % Sensor oben    Due to offset (2G instead 1G we divide /2)
+
+
+accelY_1_zero = accelY_11 - mw_1;
+accelY_2_zero = accelY_21 - mw_2;
+
+%% Filter
+
+% filteredX =  filter(b,a,accelX_1);
+% figure(3)
+% hold on 
+% plot(t,accelX_1);
+% plot(t,filteredX);
+
+
+
+%% Differenzbildung und Korrektur
+
+diff = (accelY_1_zero - accelY_2_zero)*g ;      % Differenzsignal der beiden Accelerometer
+filtered_diff = lowpass(diff,fc,fs);
+
+% s und off werden als Fitparameter verwendet, 
+% um die Referenzdaten möglichst exakt zu erhalten. 
+%(Wertebereich s ca. 0,95 - 1,05, off ca. -0,2 bis + 0,2 m/s²)
+
+s = 0.99;
+off = 0.00000075;
+
+% off = -OffsetBetweenSensors
+a_diff_korr = eye(length(accelY_11),1);
+NewCorrectedValue = 0;
+CompleteCorretion = 0;
+d = gradient(diff)
+meand = mean(d)
+% 
+% for i=1:length(accelY_11)    
+%     
+%     if(d(i) >= meand)
+%         NewCorrectedValue = (s*(diff(i)-off))-diff(i);
+%         CompleteCorretion = CompleteCorretion + NewCorrectedValue;        
+%         a_diff_korr(i) = CompleteCorretion + (s*(diff(i)-off));    
+% 
+%     else
+%         a_diff_korr(i) = CompleteCorretion + (s*(diff(i)-off));
+%     end
+% end
+    
+for i=1:length(accelY_11) 
+   a_diff_korr(i)=  (s*(diff(i)-off));
+end 
+%% Differentation und Integration
+
+vRef = gradient(positionSensor_1,t); % Referenzsignal ableiten -> Geschwindigkeit
+v = cumtrapz(t,a_diff_korr)*1000;  % Accelerometer integrieren -> Geschwindigkeit
+v1 = cumtrapz(t,diff)*1000;        % Accelerometer integrieren -> Geschwindigkeit
+
+x = cumtrapz(t,v); % Zweite Integration Accelerometer -> Strecke
+x1 = cumtrapz(t,v1); % Zweite Integration Accelerometer -> Strecke
+
+aRef = gradient(vRef,t)/(1000*g); % brechnete Referenzgeschwindigkeit ableiten -> Beschleunigung
+
+%% Plots
+
+figure(1)
+title("Raw Data Static")
+plot(t_static,accelY_1)
+hold on
+plot(t_static,accelY_2)
+legend("sensor unten","sensor oben")
+title('Static Acceleration')
+
+figure(2)
+title("Acceleration");
+hold on;
+grid on;
+plot(t,accelY_1_zero);
+plot(t,accelY_2_zero);
+% plot(t,aRef)
+xlabel('time t in s');
+ylabel('acceleration in G');
+legend("X-Unten","X-Oben","Referenzsignal");
+
+figure(3)
+plot(t,v)
+hold on
+plot(t,v1)
+plot(t,vRef)
+title('Velocity')
+legend("Accelerometer corrected","Accelerometer raw","Referenzsignal");
+
+figure(4)
+plot(t,x)
+hold on
+plot(t,x1)
+plot(t,positionSensor_1)
+grid on
+legend("Accelerometer corrected","Accelerometer raw",'Referenzsignal')
+xlabel('time in s')
+ylabel('distance in mm')
+title('Position')
