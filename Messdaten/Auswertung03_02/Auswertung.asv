@@ -74,7 +74,7 @@ end
 %% Differentation und Integration
 
 vRef = gradient(positionSensor_1,t); % Referenzsignal ableiten -> Geschwindigkeit
-v = cumtrapz(t,a_diff_korr)*1000;  % Accelerometer integrieren -> Geschwindigkeit
+v = cumtrapz(t,a_diff_korr)*1000;   % Accelerometer integrieren -> Geschwindigkeit
 v1 = cumtrapz(t,filtered_diff)*1000;        % Accelerometer integrieren -> Geschwindigkeit
 
 x = cumtrapz(t,v); % Zweite Integration Accelerometer -> Strecke
@@ -84,41 +84,47 @@ aRef = gradient(vRef,t)/(1000*g); % brechnete Referenzgeschwindigkeit ableiten -
 
 
 %% Pull Up Funktion zur Nulllinie
-checkedValue = v(1);
+
+vIn = v;
+
+checkedValue = vIn(1);
 nullLinie = 0;
-upperLimit = 1;
-lowerLimit = 1;
-for i=2:length(v)
-   if (v(i) >= checkedValue-lowerLimit) && (v(i) <= checkedValue+upperLimit) % Falls der folgewert der velocity +- upperLimit/lowerLimit liegt
+upperLimit = 100;
+lowerLimit = 100;
+
+for i=2:length(vIn)
+   if (vIn(i) >= checkedValue-lowerLimit) && (vIn(i) <= checkedValue+upperLimit) % Falls der folgewert der velocity +- upperLimit/lowerLimit liegt
        nullLinie = nullLinie + 1;
        if nullLinie == 1
-           pullUpValue = v(i); % Der Wert, um den die gesamte Funktion gehoben / gesenkt wird
+           pullUpValue = vIn(i); % Der Wert, um den die gesamte Funktion gehoben / gesenkt wird
            FirstPullUpIndex = i; % Der Index ab dem gehoben /gesenkt werden soll
        end
-       checkedValue = v(i); % nächste Wert im Array Velocity
-       if nullLinie == 100 % Wenn 100 Werte in Folge im Plataeu Bereich liegen
-           for k=FirstPullUpIndex:i % Vom ersten index bis aktuellen index bei dem Funktion gehoben/gesenkt werden soll
-               if (v(k) < 0) % Wenn Wert negativ, dann soll Wert gehoben werden
-                 v(k)= 0;
+       checkedValue = vIn(i); % nächste Wert im Array Velocity
+   elseif (vIn(i) <= checkedValue-lowerLimit) && (vIn(i) >= checkedValue+upperLimit)
+       pullUp = (vIn(FirstPullUpIndex)+vIn(i-1))/2;
+       for k=FirstPullUpIndex:i % Vom ersten index bis aktuellen index bei dem Funktion gehoben/gesenkt werden soll
+               if (vIn(k) < 0) % Wenn Wert negativ, dann soll Wert gehoben werden
+                 vIn(k)= 0;
                else          % Wenn Wert positiv, dann soll Wert gesenkt werden
-                 v(k)= 0;
+                 vIn(k)= 0;
                end
-           end
-           for j=i:length(v) % Vom aktuellen index bis letzen index bei dem Funktion gehoben/gesenkt werden soll
-               if (v(j) < 0) % Wenn Wert negativ, dann soll Wert gehoben werden
-                 v(j)= v(j) + pullUpValue;
-               else          % Wenn Wert positiv, dann soll Wert gesenkt werden
-                 v(j)= v(j) - pullUpValue;
-               end
-           end
-           nullLinie = 0;
        end
-   elseif (v(i) <= checkedValue-lowerLimit) && (v(i) >= checkedValue+upperLimit)
-   
-   else
-       nullLinie = 0;      
+       for j=i:length(vIn) % Vom aktuellen index bis letzen index bei dem Funktion gehoben/gesenkt werden soll
+           if (vIn(j) < 0) % Wenn Wert negativ, dann soll Wert gehoben werden
+             vIn(j)= vIn(j) + pullUp;
+           else          % Wenn Wert positiv, dann soll Wert gesenkt werden
+             vIn(j)= vIn(j) - pullUp;
+           end
+       end
+       nullLinie = 0;    
    end 
 end
+
+figure(10)
+plot(t,v);
+hold on
+plot(t,vIn);
+legend('InputAccel','OutputAccel');
 
 %% Plots
 
