@@ -25,7 +25,7 @@ mw_2 = mean(accelY_static_oben)
 OffsetBetweenSensors = mw_2-mw_1
 
 % Load next file
-file_1 =  importdata("Data1.TXT", ',',2);
+file_1 =  importdata("Heftig1.TXT", ',',2);
 % Split the data at $
 
 positionSensor_1 = file_1.data(:,1);
@@ -47,8 +47,8 @@ filtered_diff = lowpass(diff,fc,fs);            % filtered signal
 % um die Referenzdaten möglichst exakt zu erhalten. 
 %(Wertebereich s ca. 0,95 - 1,05, off ca. -0,2 bis + 0,2 m/s²)
 
-s = 1.05;
-off = -0.00000075;
+s = 0.99;
+off = 0.045;
 % off = OffsetBetweenSensors
 a_diff_korr = eye(length(accelY_unten),1);
 NewCorrectedValue = 0;
@@ -83,6 +83,42 @@ x1 = cumtrapz(t,v1); % Zweite Integration Accelerometer -> Strecke
 aRef = gradient(vRef,t)/(1000*g); % brechnete Referenzgeschwindigkeit ableiten -> Beschleunigung
 
 
+%% Pull Up Funktion zur Nulllinie
+checkedValue = v(1);
+nullLinie = 0;
+upperLimit = 1;
+lowerLimit = 1;
+for i=2:length(v)
+   if (v(i) >= checkedValue-lowerLimit) && (v(i) <= checkedValue+upperLimit) % Falls der folgewert der velocity +- upperLimit/lowerLimit liegt
+       nullLinie = nullLinie + 1;
+       if nullLinie == 1
+           pullUpValue = v(i); % Der Wert, um den die gesamte Funktion gehoben / gesenkt wird
+           FirstPullUpIndex = i; % Der Index ab dem gehoben /gesenkt werden soll
+       end
+       checkedValue = v(i); % nächste Wert im Array Velocity
+       if nullLinie == 100 % Wenn 100 Werte in Folge im Plataeu Bereich liegen
+           for k=FirstPullUpIndex:i % Vom ersten index bis aktuellen index bei dem Funktion gehoben/gesenkt werden soll
+               if (v(k) < 0) % Wenn Wert negativ, dann soll Wert gehoben werden
+                 v(k)= 0;
+               else          % Wenn Wert positiv, dann soll Wert gesenkt werden
+                 v(k)= 0;
+               end
+           end
+           for j=i:length(v) % Vom aktuellen index bis letzen index bei dem Funktion gehoben/gesenkt werden soll
+               if (v(j) < 0) % Wenn Wert negativ, dann soll Wert gehoben werden
+                 v(j)= v(j) + pullUpValue;
+               else          % Wenn Wert positiv, dann soll Wert gesenkt werden
+                 v(j)= v(j) - pullUpValue;
+               end
+           end
+           nullLinie = 0;
+       end
+   elseif (v(i) <= checkedValue-lowerLimit) && (v(i) >= checkedValue+upperLimit)
+   
+   else
+       nullLinie = 0;      
+   end 
+end
 
 %% Plots
 
