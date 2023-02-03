@@ -25,7 +25,7 @@ mw_2 = mean(accelY_2)
 OffsetBetweenSensors = mw_2-mw_1
 
 % Load next file
-file_1 =  importdata("Statisch4.TXT", ',',2);
+file_1 =  importdata("Data5.TXT", ',',2);
 % Split the data at $
 
 positionSensor_1 = file_1.data(:,1);
@@ -92,16 +92,19 @@ plot(t_static,accelY_2)
 legend("sensor unten","sensor oben")
 title('Static Acceleration')
 
+
+
 figure(2)
 title("Acceleration");
 hold on;
 grid on;
-plot(t,accelY_1_zero);
-plot(t,accelY_2_zero);
-% plot(t,aRef)
+plot(t,a_diff_korr);
+plot(t,filtered_diff);
+plot(t,aRef)
+stem(t,diff)
 xlabel('time t in s');
 ylabel('acceleration in G');
-legend("X-Unten","X-Oben","Referenzsignal");
+legend("a_diff_korr","filtered_diff","Referenzsignal","diff");
 
 figure(6)
 plot(t, a_diff_korr)

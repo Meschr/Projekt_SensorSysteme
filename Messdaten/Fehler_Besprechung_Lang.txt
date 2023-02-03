@@ -1,0 +1,19 @@
+Sensor
+
+3s bei beschl messung feheler
+
+
+negative starke ausschläge sind gut nachvollziebar
+
+positive starke ausschläge können nicht gefolgt werden 
+-> Grund eventuell mechanischer Tiefpass wegen Aufbau mit Kabelbinder etc...
+
+
+code :stabilisieren wenn sich v Ref über 1-2 zehnetl nicht ändert dann muss sie null sein also korrigiere nach
+-> Geschwindigkeit offset korrektur weil plateus gibt es nur bei 0
+
+2 Ansätze 
+
+Methodisch: IMU´s alle 3 Ableitungen anschaeuen damit man die Ursache findet
+
+neue Idee: mittlere distanz muss in gewisser zeit in einem bereich bleiben
