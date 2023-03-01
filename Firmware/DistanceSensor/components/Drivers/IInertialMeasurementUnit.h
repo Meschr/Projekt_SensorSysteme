@@ -16,6 +16,8 @@ public:
 
     // Kalibrierung
     virtual void Calibrate(float *accel_bias_res, float *gyro_bias_res) = 0; 
+
+    virtual double GetAndConvertAccelerationY() = 0;
 };
 
 #endif // #ifndef _IMU_hf

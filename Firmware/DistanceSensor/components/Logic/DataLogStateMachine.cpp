@@ -10,13 +10,8 @@
 #include "LS7366R.h"
 #include "Mpu6050.h"
 
-#include "AnalogInputOneShot.h"
-
 CDataLogStateMachine* CDataLogStateMachine::mspDataLogStateMachine = NULL;
 static const char* TAG = "LOG";
-
-auto analogInput = new AnalogInputOneShot(ADC_UNIT_2, ADC_CHANNEL_7, ADC_ATTEN_DB_11);
-
 
 CDataLogStateMachine::CDataLogStateMachine(void)
     : mLogState(LogStateInactive)
@@ -24,8 +19,8 @@ CDataLogStateMachine::CDataLogStateMachine(void)
     mQueueHdl = xQueueCreate(120, sizeof(SLogData));
     mpFileStorage = new CSdmmc();
     mpPositionMeasurement = new CLs7366r(500,4);
-    //mpImuUnten = new CMpu6050(MPU6050_ADDRESS_LOW, ACCEL_FULL_SCALE_RANGE_4, GYRO_FULL_SCALE_RANGE_250);
-    //mpImuOben = new CMpu6050(MPU6050_ADDRESS_HIGH, ACCEL_FULL_SCALE_RANGE_4, GYRO_FULL_SCALE_RANGE_250);
+    mpImuUnten = new CMpu6050(MPU6050_ADDRESS_LOW, ACCEL_FULL_SCALE_RANGE_4, GYRO_FULL_SCALE_RANGE_250);
+    mpImuOben = new CMpu6050(MPU6050_ADDRESS_HIGH, ACCEL_FULL_SCALE_RANGE_4, GYRO_FULL_SCALE_RANGE_250);
     mMarker  = ATOMIC_VAR_INIT(false);
 }
 
@@ -50,22 +45,19 @@ CDataLogStateMachine::~CDataLogStateMachine()
     delete mpPositionMeasurement;
     mpPositionMeasurement = NULL;
 
-    //delete mpImuUnten;
-    //mpImuUnten = NULL;
+    delete mpImuUnten;
+    mpImuUnten = NULL;
 
-    //delete mpImuOben;
-    //mpImuOben = NULL;
+    delete mpImuOben;
+    mpImuOben = NULL;
 }
 
 void CDataLogStateMachine::Init()
 {
     if (mpFileStorage)          mpFileStorage->Init();
     if (mpPositionMeasurement)  mpPositionMeasurement->Init();
-    //if (mpImuUnten)             mpImuUnten->Init();
-    //if (mpImuOben)              mpImuOben->Init();
-
-    analogInput->GetGpioNum();
-    analogInput->Calibrate();
+    if (mpImuUnten)             mpImuUnten->Init();
+    if (mpImuOben)              mpImuOben->Init();
 }
 
 void CDataLogStateMachine::Receive()
@@ -105,7 +97,7 @@ void CDataLogStateMachine::Receive()
                     ,logData.marker
                     ,logData.acceleration_data.acceleration_x
                     ,logData.acceleration_data.acceleration_y
-                    ,logData.adc0
+                    ,logData.acceleration_data.acceleration_z
                     ,logData.index);
                 dataString.append(newElement);
             }
@@ -143,12 +135,11 @@ void CDataLogStateMachine::Send()
     case LogStateLogging:
         {
             logData.index++;
-            if (mpPositionMeasurement)  logData.pos                = mpPositionMeasurement->GetPositionMm();
-            //if (mpImuUnten)             logData.acceleration_data.acceleration_x  = static_cast<float>(mpImuUnten->GetAndConvertAccelerationX());
-            //if (mpImuOben)              logData.acceleration_data.acceleration_y  = static_cast<float>(mpImuOben->GetAndConvertAccelerationX());
-            logData.adc0 = analogInput->GetVoltageCalibrated();
 
-
+            if (mpPositionMeasurement)  logData.pos                              = mpPositionMeasurement->GetPositionMm();
+            if (mpImuUnten)             logData.acceleration_data.acceleration_x = mpImuUnten->GetAndConvertAccelerationY();
+            if (mpImuOben)              logData.acceleration_data.acceleration_y = mpImuOben->GetAndConvertAccelerationY();
+                   
             if(mMarker.load())
             {
                 logData.marker = true;

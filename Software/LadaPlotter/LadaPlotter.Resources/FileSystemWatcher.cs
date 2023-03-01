@@ -27,37 +27,31 @@ public class LogFileDirectoryHandler
         _watcher.IncludeSubdirectories = true;
         _watcher.EnableRaisingEvents = true;
 
-        _watcher.Changed += OnChanged;
-        _watcher.Created += OnCreated;
-        _watcher.Deleted += OnDeleted;
-        _watcher.Renamed += OnRenamed;
         _watcher.Error += OnError;
     }
 
-    public event EventHandler<FileSystemEventArgs> FileChanged;
-    public event EventHandler<FileSystemEventArgs> FileCreated;
-    public event EventHandler<FileSystemEventArgs> FileDeleted;
-    public event EventHandler<RenamedEventArgs> FileRenamed;
-
-
-    private void OnChanged(object sender, FileSystemEventArgs e)
+    public event FileSystemEventHandler FileChanged
     {
-        FileChanged.Invoke(sender,e);
+        add => _watcher.Changed += value;
+        remove => _watcher.Changed -= value;
     }
 
-    private void OnCreated(object sender, FileSystemEventArgs e)
+    public event FileSystemEventHandler FileCreated
     {
-        FileCreated.Invoke(sender,e);
+        add => _watcher.Created += value;
+        remove => _watcher.Created -= value;
     }
 
-    private void OnDeleted(object sender, FileSystemEventArgs e)
+    public event FileSystemEventHandler FileDeleted
     {
-        FileDeleted.Invoke(sender,e);
+        add => _watcher.Deleted += value;
+        remove => _watcher.Deleted -= value;
     }
 
-    private void OnRenamed(object sender, RenamedEventArgs e)
+    public event RenamedEventHandler FileRenamed
     {
-        FileRenamed.Invoke(sender,e);
+        add => _watcher.Renamed += value;
+        remove => _watcher.Renamed -= value;
     }
 
     private void OnError(object sender, ErrorEventArgs e)

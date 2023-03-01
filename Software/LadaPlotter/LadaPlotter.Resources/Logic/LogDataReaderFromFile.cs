@@ -7,7 +7,7 @@ namespace LadaPlotter.Resources.Logic
     {
         public async Task<LogData> Read(string path)
         {
-            var logData = new LogData();
+            var logData = new LogData("");
             logData.Name = Path.GetFileNameWithoutExtension(path);
             using (var fileReader = File.OpenText(path))
             {

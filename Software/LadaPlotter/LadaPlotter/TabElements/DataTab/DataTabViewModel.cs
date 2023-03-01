@@ -64,7 +64,7 @@ namespace LadaPlotter.UI.TabElements.DataTab
         public void Handle(LogDataChangedEvent message)
         {
             var isAlreadyLoaded = false;
-            var currentLogData = new LogData();
+            var currentLogData = new LogData("");
             foreach (var logData in _loadedLogData)
             {
                 if (logData.Name == message.LogDataName)
@@ -118,7 +118,7 @@ namespace LadaPlotter.UI.TabElements.DataTab
         public Task HandleAsync(LogDataChangedEvent message, CancellationToken cancellationToken)
         {
             var isAlreadyLoaded = false;
-            var currentLogData = new LogData();
+            var currentLogData = new LogData("");
             foreach (var logData in _loadedLogData)
             {
                 if (logData.Name == message.LogDataName)
