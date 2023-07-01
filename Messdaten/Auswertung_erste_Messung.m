@@ -44,6 +44,7 @@ accelX_2_zero = accelX_21 - mw_2;
 
 diff = (accelX_1_zero - accelX_2_zero)*g ;
 
+%%
 figure(1)
 plot(t,positionSensor_1);
 xlabel('time t in s');
