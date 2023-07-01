@@ -10,7 +10,7 @@ g = 9.81;
 fs = 500;           % sampling frequency
 fc = 25;            % cut frequency
 
-file =  importdata("Statisch1.TXT", ',',2);
+file =  importdata("Statisch1.TXT", ',',2);         % Beschleunigung in g
 % Split the data at $
 
 positionSensor = file.data(:,1);
@@ -25,7 +25,7 @@ mw_2 = mean(accelY_static_oben)
 OffsetBetweenSensors = mw_2-mw_1
 
 % Load next file
-file_1 =  importdata("Heftig1.TXT", ',',2);
+file_1 =  importdata("Heftig1.TXT", ',',2);         % Beschleunigung in g
 % Split the data at $
 
 positionSensor_1 = file_1.data(:,1);
@@ -38,7 +38,7 @@ accelY_2_zero = accelY_oben - mw_2;
 
 %% Filter
 
-diff = (accelY_1_zero - accelY_2_zero)*g ;      % Differenzsignal der beiden Accelerometer
+diff = (accelY_1_zero - accelY_2_zero)*g*1000;      % Differenzsignal der beiden Accelerometer in [mm/s^2]
 filtered_diff = lowpass(diff,fc,fs);            % filtered signal
 
 %% Differenzbildung und Korrektur
@@ -46,15 +46,7 @@ filtered_diff = lowpass(diff,fc,fs);            % filtered signal
 % s und off werden als Fitparameter verwendet, 
 % um die Referenzdaten möglichst exakt zu erhalten. 
 %(Wertebereich s ca. 0,95 - 1,05, off ca. -0,2 bis + 0,2 m/s²)
-
-s = 0.99;
-off = 0.045;
-% off = OffsetBetweenSensors
-a_diff_korr = eye(length(accelY_unten),1);
-NewCorrectedValue = 0;
-CompleteCorretion = 0;
-d = gradient(filtered_diff);
-meand = mean(d)
+%
 % 
 % for i=1:length(accelY_11)    
 %     
@@ -67,100 +59,129 @@ meand = mean(d)
 %         a_diff_korr(i) = CompleteCorretion + (s*(diff(i)-off));
 %     end
 % end
-    
-for i=1:length(accelY_unten) 
-   a_diff_korr(i)=  (s*(filtered_diff(i)-off));
-end 
+
+a_diff_korr = filtered_diff
+
+% for i=1:length(accelY_unten) 
+%    a_diff_korr(i)=  (s*(filtered_diff(i)-off));
+% end 
+
 %% Differentation und Integration
 
-vRef = gradient(positionSensor_1,t); % Referenzsignal ableiten -> Geschwindigkeit
-v = cumtrapz(t,a_diff_korr)*1000;   % Accelerometer integrieren -> Geschwindigkeit
-v1 = cumtrapz(t,filtered_diff)*1000;        % Accelerometer integrieren -> Geschwindigkeit
+vRef = gradient(positionSensor_1,t);    % Referenzsignal ableiten -> Geschwindigkeit
+aRef = gradient(vRef,t);                % brechnete Referenzgeschwindigkeit ableiten -> Beschleunigung
 
-x = cumtrapz(t,v); % Zweite Integration Accelerometer -> Strecke
-x1 = cumtrapz(t,v1); % Zweite Integration Accelerometer -> Strecke
+v1 = cumtrapz(t,a_diff_korr);      % Accelerometer integrieren -> Geschwindigkeit
+v2 = cumtrapz(t,filtered_diff);    % Accelerometer integrieren -> Geschwindigkeit
 
-aRef = gradient(vRef,t)/(1000*g); % brechnete Referenzgeschwindigkeit ableiten -> Beschleunigung
+x1 = cumtrapz(t,v1);                    % Zweite Integration Accelerometer -> Strecke
+x2 = cumtrapz(t,v2);                    % Zweite Integration Accelerometer -> Strecke
 
+% %% Fit Funktion der raw Daten mithilfe Basic Fitting Funktion in Matlab Plot (Figure(5))
+% load fit_Figure5.mat
+% p = fit_Figure5.coeff
+% fitted = polyval(p,t)
+% x1 = x1-fitted
 
 %% Pull Up Funktion zur Nulllinie
 
-vIn = v;
+checkedValue = v1(1);
+upperLimit = 0.41;
+lowerLimit = -0.39;
+plateauLength = 110;
 
-checkedValue = vIn(1);
-nullLinie = 0;
-upperLimit = 100;
-lowerLimit = 100;
-
-
-ohje = FindPlateausInData(a_diff_korr, -0.39, 0.41, 110);
-v_crazy = RemoveOffsetFromPlateaus(v, ohje)
+%plateausXValues = FindPlateausInData(a_diff_korr, lowerLimit, upperLimit, plateauLength);
+plateausXValues = FindPlateausInData(v1, lowerLimit, upperLimit, plateauLength);
+v_crazy = RemoveOffsetFromPlateaus(v1, plateausXValues)
 
 
-figure(10)
-plot(v);
-hold on
-plot(v_crazy)
 %plot(filtered_diff);
-legend('InputAccel','OutputAccel');
-for i = 1 : length(ohje)
-    xline(ohje(i));
-end     
-
+%legend('InputAccel','OutputAccel');
+for i = 1 : length(plateausXValues)
+    xline(plateausXValues(i));
+end   
 
 %% Plots
 
 figure(1)
-title("Raw Data Static")
 plot(t_static,accelY_static_unten)
 hold on
 plot(t_static,accelY_static_oben)
 legend("sensor unten","sensor oben")
-title('Static Acceleration')
+xlabel('time t in s');
+ylabel('Beschleunigung in [g]');
+title("Raw Data Beschleunigung Static")
+grid on;
 
-figure(7)
-title('Raw data')
+figure(2)
 plot(t,accelY_unten)
 hold on 
 plot(t,accelY_oben)
 legend("sensor unten","sensor oben")
-
-figure(2)
-title("Acceleration");
-hold on;
-grid on;
-plot(t,a_diff_korr/g);
-plot(t,filtered_diff/g);
-plot(t,aRef)
-stem(t,diff/g)
+title('Raw Data Beschleunigung')
 xlabel('time t in s');
-ylabel('acceleration in G');
-legend("a_diff_korr","filtered_diff","Referenzsignal","diff");
-
-figure(6)
-plot(t, a_diff_korr)
+ylabel('Beschleunigung in [g]');
+grid on
 
 
 figure(3)
-plot(t,v)
+plot(t,a_diff_korr);
 hold on
-plot(t,v1)
-plot(t,vRef)
-title('Velocity')
-legend("Accelerometer corrected","Accelerometer raw","Referenzsignal");
-
-figure(4)
-plot(t,x)
-hold on
-plot(t,x1)
-plot(t,positionSensor_1)
-grid on
-legend("Accelerometer corrected","Accelerometer raw",'Referenzsignal')
-xlabel('time in s')
-ylabel('distance in mm')
-title('Position')
+plot(t,filtered_diff);
+plot(t,aRef)
+%stem(t,diff/g)
+xlabel('time t in s');
+ylabel('acceleration in [mm/s^2]');
+legend("a_diff_korr","filtered_diff","Referenzsignal","diff");
+title("Beschleunigung Differenzsignal");
+grid on;
 
 figure(5)
+plot(t,v1)
+hold on
+plot(t,v2)
+plot(t,vRef)
+title('Velocity')
+xlabel('time t in s');
+ylabel('velocity in [mm/s]');
+legend("Accelerometer corrected","Accelerometer raw","Referenzsignal","a diff korr");
+grid on
+
+figure(6)
+plot(t,x1)
+hold on
+plot(t,x2)
+plot(t,positionSensor_1)
+legend("Accelerometer corrected","Accelerometer raw",'Referenzsignal')
+xlabel('time in s')
+ylabel('distance in [mm]')
+title('Strecke')
+grid on
+
+figure(7)
 plot(t,diff)
 hold on
 plot(t,filtered_diff)
+xlabel('time in s')
+ylabel('acceleration in [mm/s^2]')
+legend("diff signal","filterd diff")
+title('gefiltertes Diff Signal vs. ungefiltert')
+grid on
+
+figure(8)
+plot(v_crazy)
+title('Geschwindigkeit')
+xlabel('time in s')
+ylabel('velocity in [mm/s]')
+legend('v_{crazy}')
+grid on
+
+figure(9)
+plot(v1)
+hold on
+for i = 1 : length(plateausXValues)
+    xline(plateausXValues(i));
+end 
+ylabel('velocity in [mm/s]')
+xlabel('Data point n')
+title("Plateaus nach Funktion")
