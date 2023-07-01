@@ -1,0 +1,6 @@
+Plateau Suche:
+
+ist a = 0 so ist v = konstant -> wir haben ein Plateau in v
+
+wir suchen Plateaus in v -> entspricht Plateau auf 0 in a
+alternativ suche direkt plateaus in v -> aufwändig und Funktion "FindPlateaus" muss uangepasst werden

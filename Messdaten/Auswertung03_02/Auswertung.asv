@@ -38,44 +38,17 @@ accelY_2_zero = accelY_oben - mw_2;
 
 %% Filter
 
-diff = (accelY_1_zero - accelY_2_zero)*g*1000;      % Differenzsignal der beiden Accelerometer in [mm/s^2]
-filtered_diff = lowpass(diff,fc,fs);            % filtered signal
-
-%% Differenzbildung und Korrektur
-
-% s und off werden als Fitparameter verwendet, 
-% um die Referenzdaten möglichst exakt zu erhalten. 
-%(Wertebereich s ca. 0,95 - 1,05, off ca. -0,2 bis + 0,2 m/s²)
-%
-% 
-% for i=1:length(accelY_11)    
-%     
-%     if(d(i) >= meand)
-%         NewCorrectedValue = (s*(diff(i)-off))-diff(i);
-%         CompleteCorretion = CompleteCorretion + NewCorrectedValue;        
-%         a_diff_korr(i) = CompleteCorretion + (s*(diff(i)-off));    
-% 
-%     else
-%         a_diff_korr(i) = CompleteCorretion + (s*(diff(i)-off));
-%     end
-% end
-
-a_diff_korr = filtered_diff
-
-% for i=1:length(accelY_unten) 
-%    a_diff_korr(i)=  (s*(filtered_diff(i)-off));
-% end 
+aDiff = (accelY_1_zero - accelY_2_zero)*g*1000;      % Differenzsignal der beiden Accelerometer in [mm/s^2]
+aFilteredDiff = lowpass(aDiff,fc,fs);                % filtered signal
 
 %% Differentation und Integration
 
 vRef = gradient(positionSensor_1,t);    % Referenzsignal ableiten -> Geschwindigkeit
 aRef = gradient(vRef,t);                % brechnete Referenzgeschwindigkeit ableiten -> Beschleunigung
 
-v1 = cumtrapz(t,a_diff_korr);      % Accelerometer integrieren -> Geschwindigkeit
-v2 = cumtrapz(t,filtered_diff);    % Accelerometer integrieren -> Geschwindigkeit
+v = cumtrapz(t,aFilteredDiff);    % Accelerometer integrieren -> Geschwindigkeit
 
-x1 = cumtrapz(t,v1);                    % Zweite Integration Accelerometer -> Strecke
-x2 = cumtrapz(t,v2);                    % Zweite Integration Accelerometer -> Strecke
+x = cumtrapz(t,v);                % Zweite Integration Accelerometer -> Strecke
 
 % %% Fit Funktion der raw Daten mithilfe Basic Fitting Funktion in Matlab Plot (Figure(5))
 % load fit_Figure5.mat
@@ -85,22 +58,14 @@ x2 = cumtrapz(t,v2);                    % Zweite Integration Accelerometer -> St
 
 %% Pull Up Funktion zur Nulllinie
 
-checkedValue = v1(1);
-upperLimit = 0.41;
-lowerLimit = -0.39;
+upperLimit = 0.41*1000;
+lowerLimit = -0.39*1000;
 plateauLength = 110;
 
-%plateausXValues = FindPlateausInData(a_diff_korr, lowerLimit, upperLimit, plateauLength);
-plateausXValues = FindPlateausInData(v1, lowerLimit, upperLimit, plateauLength);
-v_crazy = RemoveOffsetFromPlateaus(v1, plateausXValues)
+plateausXValues = FindPlateausInData(aFilteredDiff, lowerLimit, upperLimit, plateauLength);
+vPlateausRemoved = RemoveOffsetFromPlateaus(v, plateausXValues);
 
-
-%plot(filtered_diff);
-%legend('InputAccel','OutputAccel');
-for i = 1 : length(plateausXValues)
-    xline(plateausXValues(i));
-end   
-
+xCrazy = cumtrapz(t,v);                % Zweite Integration Accelerometer -> Strecke
 %% Plots
 
 figure(1)
@@ -125,62 +90,61 @@ grid on
 
 
 figure(3)
-plot(t,a_diff_korr);
+plot(t,aFilteredDiff);
 hold on
-plot(t,filtered_diff);
 plot(t,aRef)
-%stem(t,diff/g)
 xlabel('time t in s');
 ylabel('acceleration in [mm/s^2]');
-legend("a_diff_korr","filtered_diff","Referenzsignal","diff");
+legend("filtered_diff","Referenzsignal");
 title("Beschleunigung Differenzsignal");
 grid on;
 
-figure(5)
-plot(t,v1)
+figure(4)
+plot(t,v)
 hold on
-plot(t,v2)
 plot(t,vRef)
 title('Velocity')
 xlabel('time t in s');
 ylabel('velocity in [mm/s]');
-legend("Accelerometer corrected","Accelerometer raw","Referenzsignal","a diff korr");
+legend("Accelerometer berechnet","Referenzsignal");
 grid on
 
-figure(6)
-plot(t,x1)
+figure(5)
+plot(t,x)
 hold on
-plot(t,x2)
 plot(t,positionSensor_1)
-legend("Accelerometer corrected","Accelerometer raw",'Referenzsignal')
+legend("Accelerometer berechnet",'Referenzsignal')
 xlabel('time in s')
 ylabel('distance in [mm]')
 title('Strecke')
 grid on
 
-figure(7)
-plot(t,diff)
+figure(6)
+plot(t,aDiff)
 hold on
-plot(t,filtered_diff)
+plot(t,aFilteredDiff)
 xlabel('time in s')
 ylabel('acceleration in [mm/s^2]')
 legend("diff signal","filterd diff")
-title('gefiltertes Diff Signal vs. ungefiltert')
+title('gefiltertes Differenzsignal vs. ungefiltertes Differenzsignal')
 grid on
 
+figure(7)
+plot(t, v)
+hold on
+for i = 1 : length(plateausXValues)
+    xline(t(plateausXValues(i)));
+end 
+ylabel('velocity in [mm/s]')
+xlabel('time in s')
+title("Plateaus nach Funktion")
+
 figure(8)
-plot(v_crazy)
+plot(t,vPlateausRemoved)
+hold on
+plot(t,v)
 title('Geschwindigkeit')
 xlabel('time in s')
 ylabel('velocity in [mm/s]')
-legend('v_{crazy}')
+legend('v_{crazy}','v')
 grid on
-
-figure(9)
-plot(v1)
-hold on
-for i = 1 : length(plateausXValues)
-    xline(plateausXValues(i));
-end 
-ylabel(velocity in [mm/s])
-title("Plateaus nach Funktion")
