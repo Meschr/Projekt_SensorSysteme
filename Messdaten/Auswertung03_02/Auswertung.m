@@ -14,7 +14,7 @@ file =  importdata("Statisch1.TXT", ',',2);         % Beschleunigung in g
 % Split the data at $
 
 positionSensor = file.data(:,1);
-t_static = linspace(0.002, 0.002*length(positionSensor), length(positionSensor))'; %Zeitvektor
+t_static = linspace(0.002, 0.002*length(positionSensor), length(positionSensor))'; %Zeitvektor 
 accelY_static_unten = (file.data(:,3)/2);      % Sensor unten   Due to offset (2G instead 1G we divide /2)
 accelY_static_oben = (file.data(:,4)/2);      % Sensor oben    Due to offset (2G instead 1G we divide /2)
 
@@ -41,6 +41,29 @@ accelY_2_zero = accelY_oben - mw_2;
 aDiff = (accelY_1_zero - accelY_2_zero)*g*1000;      % Differenzsignal der beiden Accelerometer in [mm/s^2]
 aFilteredDiff = lowpass(aDiff,fc,fs);                % filtered signal
 
+
+
+
+%% Savitzky-Golay Filter for Acceleration
+outlierIndexes = isoutlier(aFilteredDiff); %Find outliners (Hochpunkt, Tiefpunkt, Ausreißer)
+
+% Extract the good data.
+tGood = t(~outlierIndexes); %outliner für zeit
+accelGood = aFilteredDiff(~outlierIndexes); %outliner für beschleunigung
+
+windowWidth = 51; % Smaller for tighter following of original data, bigger for smoother curve.
+smoothedy = sgolayfilt(accelGood, 2, windowWidth); %Anwendung Savitzky-Golay Filter
+
+% But smoothedy has fewer points so if we're to subtract it from the original
+% we have to fill in the missing points.
+smoothedy = interp1(tGood, smoothedy, t);
+
+% Now subtract the smoothed signal to get the variation
+signal_accel = aFilteredDiff - smoothedy; %korrigiertes Beschleunigungssignal
+
+smoothedy_velo = cumtrapz(t, smoothedy); % Integration von Korrekturwerten
+
+
 %% Differentation und Integration
 
 vRef = gradient(positionSensor_1,t);    % Referenzsignal ableiten -> Geschwindigkeit
@@ -55,6 +78,31 @@ x = cumtrapz(t,v);                % Zweite Integration Accelerometer -> Strecke
 % p = fit_Figure5.coeff
 % fitted = polyval(p,t)
 % x1 = x1-fitted
+
+%% Detrend Signal
+v_detrend = detrend(v,6); %removes the nth-degree polynomial trend
+
+
+
+%% Savitzky-Golay Filter for Velocity
+% outlierIndexes = isoutlier(v); %Find outliners 
+
+% Extract the good data.
+%tGood = t(~outlierIndexes);
+%veloGood = v(~outlierIndexes);
+
+%windowWidth = 51; % Smaller for tighter following of original data, bigger for smoother curve.
+%smoothedy = sgolayfilt(veloGood, 2, windowWidth);
+
+% But smoothedy has fewer points so if we're to subtract it from the original
+% we have to fill in the missing points.
+%smoothedy = interp1(tGood, smoothedy, t);
+
+% Now subtract the smoothed signal to get the variation
+signal_velo = v - smoothedy_velo; % korrigiertes Geschwindigkeitssignal
+
+x_smooth = cumtrapz(t,v_detrend); % Streckensignal integriert aus detrend korrigiertem Geschwindigkeitssignal
+
 
 %% Pull Up Funktion zur Nulllinie
 
@@ -158,4 +206,33 @@ xlabel('time in s')
 ylabel('distance in [mm]')
 title('Strecke')
 grid on
+
+figure(10)
+plot(t, signal_accel);
+hold on;
+plot(t,aFilteredDiff);
+grid on;
+title('Corrected Signal');
+xlabel('Time');
+ylabel('Acceleration');
+
+figure(11)
+plot(t, v_detrend);
+hold on;
+plot(t,v);
+title('Corrected Signal');
+xlabel('Time');
+ylabel('Velocity');
+
+figure(12)
+plot(t, x);
+hold on;
+plot(t,x_smooth);
+hold on;
+plot(t,positionSensor_1)
+legend("Strecke integriert","Strecke mit detrend korrigiert", "Strecke Referenz Sensor")
+title('Strecken Signale');
+xlabel('Time');
+ylabel('Strecke');
+
 
