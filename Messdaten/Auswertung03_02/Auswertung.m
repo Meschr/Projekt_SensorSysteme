@@ -115,8 +115,8 @@ vPlateausRemoved = RemoveOffsetFromPlateaus(v, plateausXValues);
 
 xCrazy = cumtrapz(t,vPlateausRemoved);                % Zweite Integration Accelerometer -> Strecke
 %% Plots
-
-figure(1)
+k = 1;
+fig = figure(k)
 plot(t_static,accelY_static_unten)
 hold on
 plot(t_static,accelY_static_oben)
@@ -125,8 +125,10 @@ xlabel('time t in s');
 ylabel('Beschleunigung in [g]');
 title("Raw Data Beschleunigung Static")
 grid on;
+saveas(fig,fullfile(pwd,'\plots\Raw_Data_Acceleration_static.png'),'png');
 
-figure(2)
+k=k+1;
+fig = figure(k)
 plot(t,accelY_unten)
 hold on 
 plot(t,accelY_oben)
@@ -135,9 +137,10 @@ title('Raw Data Beschleunigung')
 xlabel('time t in s');
 ylabel('Beschleunigung in [g]');
 grid on
+saveas(fig,fullfile(pwd,'\plots\Raw_Data_Acceleration.png'),'png');
 
-
-figure(3)
+k=k+1;
+fig = figure(k)
 plot(t,aFilteredDiff);
 hold on
 plot(t,aRef)
@@ -146,8 +149,10 @@ ylabel('acceleration in [mm/s^2]');
 legend("filtered_diff","Referenzsignal");
 title("Beschleunigung Differenzsignal");
 grid on;
+saveas(fig,fullfile(pwd,'\plots\Beschleunigung_Diffenzsignal.png'),'png');
 
-figure(4)
+k=k+1;
+fig = figure(k)
 plot(t,v)
 hold on
 plot(t,vRef)
@@ -156,8 +161,10 @@ xlabel('time t in s');
 ylabel('velocity in [mm/s]');
 legend("Accelerometer berechnet","Referenzsignal");
 grid on
+saveas(fig,fullfile(pwd,'\plots\Geschwindigkeit.png'),'png');
 
-figure(5)
+k=k+1;
+fig = figure(k)
 plot(t,x)
 hold on
 plot(t,positionSensor_1)
@@ -166,8 +173,10 @@ xlabel('time in s')
 ylabel('distance in [mm]')
 title('Strecke')
 grid on
+saveas(fig,fullfile(pwd,'\plots\Strecke.png'),'png');
 
-figure(6)
+k=k+1;
+fig = figure(k)
 plot(t,aDiff)
 hold on
 plot(t,aFilteredDiff)
@@ -176,8 +185,10 @@ ylabel('acceleration in [mm/s^2]')
 legend("diff signal","filterd diff")
 title('gefiltertes Differenzsignal vs. ungefiltertes Differenzsignal')
 grid on
+saveas(fig,fullfile(pwd,'\plots\gefiltert_VS_ungefiltert_Differenzsignal.png'),'png');
 
-figure(7)
+k=k+1;
+fig = figure(k)
 plot(t, v)
 hold on
 for i = 1 : length(plateausXValues)
@@ -186,8 +197,10 @@ end
 ylabel('velocity in [mm/s]')
 xlabel('time in s')
 title("Plateaus nach Funktion")
+saveas(fig,fullfile(pwd,'\plots\Plateaus.png'),'png');
 
-figure(8)
+k=k+1;
+fig = figure(k)
 plot(t,vPlateausRemoved)
 hold on
 plot(t,v)
@@ -196,8 +209,10 @@ xlabel('time in s')
 ylabel('velocity in [mm/s]')
 legend('v_{crazy}','v')
 grid on
+saveas(fig,fullfile(pwd,'\plots\Geschwindigkeit_plateaus_korrigiert.png'),'png');
 
-figure(9)
+k=k+1;
+fig = figure(k)
 plot(t,xCrazy)
 hold on
 plot(t,positionSensor_1)
@@ -206,8 +221,10 @@ xlabel('time in s')
 ylabel('distance in [mm]')
 title('Strecke')
 grid on
+saveas(fig,fullfile(pwd,'\plots\Strecke_real_vs_ref.png'),'png');
 
-figure(10)
+k=k+1;
+fig = figure(k)
 plot(t, signal_accel);
 hold on;
 plot(t,aFilteredDiff);
@@ -215,16 +232,20 @@ grid on;
 title('Corrected Signal');
 xlabel('Time');
 ylabel('Acceleration');
+saveas(fig,fullfile(pwd,'\plots\Beschleunigung_korrigiert.png'),'png');
 
-figure(11)
+k=k+1;
+fig = figure(k)
 plot(t, v_detrend);
 hold on;
 plot(t,v);
 title('Corrected Signal');
 xlabel('Time');
 ylabel('Velocity');
+saveas(fig,fullfile(pwd,'\plots\Geschwindikeit_korrigiert.png'),'png');
 
-figure(12)
+k=k+1;
+fig = figure(k)
 plot(t, x);
 hold on;
 plot(t,x_smooth);
@@ -234,5 +255,4 @@ legend("Strecke integriert","Strecke mit detrend korrigiert", "Strecke Referenz 
 title('Strecken Signale');
 xlabel('Time');
 ylabel('Strecke');
-
-
+saveas(fig,fullfile(pwd,'\plots\Strecke_nach_detrend.png'),'png');
