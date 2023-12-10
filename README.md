@@ -14,5 +14,12 @@ Allgemein:
 - ggf. Gehäuse mit dickerer Wandstärke
 
 Elektrisch
+- 5V/3V (lipo laden ohne last)
+- Stecker am Gehäuse
 
 Software
+- GPS
+- IMU ?
+
+Kaufen:
+- HEDS Incrementaldrehgeber (notfalls rüberschrauben)
