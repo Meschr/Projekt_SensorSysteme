@@ -7,7 +7,7 @@
 
 #include "Sdmmc.h"
 #include "LogInfoHandler.h"
-#include "LS7366R.h"
+#include "Ls7366R.h"
 #include "Mpu6050.h"
 
 CDataLogStateMachine* CDataLogStateMachine::mspDataLogStateMachine = NULL;
